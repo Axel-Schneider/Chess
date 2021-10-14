@@ -198,7 +198,10 @@ namespace chess
                 Case obj = Cases.Where(c => c.Id == sender.Case.Id + mv && Math.Abs(c.y - sender.Case.y) < 2 && Math.Abs(c.x - sender.Case.x) < 2).FirstOrDefault();
                 if (obj != null)
                 {
-                    res.Add(obj);
+                    if(obj.Piece == null || obj.Piece.Color != sender.Color)
+                    {
+                        res.Add(obj);
+                    }
                 }
             }
 
@@ -216,23 +219,14 @@ namespace chess
 
         private void CalculRook(Rook sender)
         {
-            List<Case> res = new List<Case>();
-            var mvs = new int[] { 1, BOARD_SIZE };
-            mvs = new int[] { mvs[0], -mvs[0], mvs[1], -mvs[1] };
+            List<Case> res = CalculLine(sender);
 
-            foreach (int mv in mvs)
-            {
-                for (int i = sender.Case.Id + mv; i >= 0 && i <= BOARD_SIZE * BOARD_SIZE; i += mv)
-                {
-                    Case obj = Cases.Where(c => c.Id == i && (c.y == sender.Case.y || c.x == sender.Case.x)).FirstOrDefault();
-                    if (obj != null)
-                    {
-                        if (obj.Piece != null) break;
-                        res.Add(obj);
+            showMoves(sender, res);
+        }
 
-                    }
-                }
-            }
+        private void CalculBishop(Bishop sender)
+        {
+            List<Case> res = CalculDiagonal(sender);
 
             showMoves(sender, res);
         }
@@ -252,16 +246,9 @@ namespace chess
                 Case obj = Cases.Where(c => c.Id == sender.Case.Id + mv && Math.Abs(c.y - sender.Case.y) < 3 && Math.Abs(c.x - sender.Case.x) < 3).FirstOrDefault();
                 if (obj != null)
                 {
-                    res.Add(obj);
+                    if(obj.Piece == null || obj.Piece.Color != sender.Color) res.Add(obj);
                 }
             }
-            showMoves(sender, res);
-        }
-
-        private void CalculBishop(Bishop sender)
-        {
-            List<Case> res = CalculLine(sender);
-
             showMoves(sender, res);
         }
 
@@ -286,15 +273,35 @@ namespace chess
             foreach (int i in new int[] { 1, -1})
             {
                 obj = Cases.Where(c => c.Id == sender.Case.Id + BOARD_SIZE * mv + i && c.y == sender.Case.y+ mv).FirstOrDefault();
-                if(obj != null && obj.Piece != null) 
+                if(obj != null && (obj.Piece != null && obj.Piece.Color != sender.Color)) 
                     res.Add(obj);
-
             }
 
             showMoves(sender, res);
         }
 
         private List<Case> CalculLine(Piece sender)
+        {
+            List<Case> res = new List<Case>();
+            var mvs = new int[] { 1, BOARD_SIZE };
+            mvs = new int[] { mvs[0], -mvs[0], mvs[1], -mvs[1] };
+
+            foreach (int mv in mvs)
+            {
+                for (int i = sender.Case.Id + mv; i >= 0 && i <= BOARD_SIZE * BOARD_SIZE; i += mv)
+                {
+                    Case obj = Cases.Where(c => c.Id == i && (c.y == sender.Case.y || c.x == sender.Case.x)).FirstOrDefault();
+                    if (obj != null)
+                    {
+                        if (obj.Piece == null || obj.Piece.Color != sender.Color) res.Add(obj);
+                        if (obj.Piece != null) break;
+                    }
+                }
+            }
+            return res;
+        }
+
+        private List<Case> CalculDiagonal(Piece sender)
         {
             List<Case> res = new List<Case>();
             var mvs = new int[] { BOARD_SIZE - 1, BOARD_SIZE + 1 };
@@ -308,35 +315,16 @@ namespace chess
 
                     if (obj != null)
                     {
-                        if (obj.Piece != null) break;
 
                         if (Math.Abs(last.x - obj.x) == 1 && Math.Abs(last.y - obj.y) == 1)
                         {
-                            res.Add(obj);
-                            last = obj;
+                            if (obj.Piece == null || obj.Piece.Color != sender.Color)
+                            {
+                                res.Add(obj);
+                                last = obj;
+                            }
                         }
-                    }
-                }
-            }
-            return res;
-        }
-
-        private List<Case> CalculDiagonal(Piece sender)
-        {
-            List<Case> res = new List<Case>();
-            var mvs = new int[] { 1, BOARD_SIZE };
-            mvs = new int[] { mvs[0], -mvs[0], mvs[1], -mvs[1] };
-
-            foreach (int mv in mvs)
-            {
-                for (int i = sender.Case.Id + mv; i >= 0 && i <= BOARD_SIZE * BOARD_SIZE; i += mv)
-                {
-                    Case obj = Cases.Where(c => c.Id == i && (c.y == sender.Case.y || c.x == sender.Case.x)).FirstOrDefault();
-                    if (obj != null)
-                    {
                         if (obj.Piece != null) break;
-                        res.Add(obj);
-
                     }
                 }
             }
