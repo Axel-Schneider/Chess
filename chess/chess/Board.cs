@@ -167,7 +167,7 @@ namespace chess
                 Image img = new Image()
                 {
                     Source = bitmap,
-                    Opacity = 0.5
+                    Opacity = 0.4
                 };
                 c.Children.Add(img);
                 moves.Add(img);
@@ -186,7 +186,7 @@ namespace chess
         private void CalculKing(King sender)
         {
             var mvs = new List<int>();
-            foreach (int i in new int[] { 1, 7, 8, 9 })
+            foreach (int i in new int[] { 1, BOARD_SIZE - 1, BOARD_SIZE, BOARD_SIZE + 1 })
             {
                 mvs.Add(i);
                 mvs.Add(-i);
@@ -254,7 +254,7 @@ namespace chess
 
         private void CalculPawn(Pawn sender)
         {
-            int mv = sender.Color ? 1 : -1;
+            int mv = sender.Color ? -1 : 1;
             List<Case> res = new List<Case>();
             Case obj = null;
 
