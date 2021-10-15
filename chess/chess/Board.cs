@@ -294,11 +294,37 @@ namespace chess
                         }
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
+
+                        if (IsCheckMate(!piece.Color))
+                        {
+                            EndGame();
+                        }
                     };
                 }
             }
         }
-
+        private void EndGame()
+        {
+            Background = new SolidColorBrush()
+            {
+                Color = Color.FromRgb(0, 0, 0),
+                Opacity = 0.2
+            };
+            Grid grid = new Grid()
+            {
+                Background = Background
+            };
+            Children.Add(grid);
+            Label lbl = new Label()
+            {
+                Content = "GAME OVER",
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 0),
+                FontSize = 36
+            };
+            grid.Children.Add(lbl);
+        }
         private void PawnPromotionCallback(Piece result, Piece source)
         {
             result.MouseDown += Piece_MouseDown;
@@ -481,6 +507,17 @@ namespace chess
             return res;
         }
 
+        private List<Case> CalculMoves(Piece sender)
+        {
+            List<Case> cases = null;
+            if (sender is Pawn) cases = CalculPawn((Pawn)sender);
+            else if (sender is Knight) cases = CalculKnight((Knight)sender);
+            else if (sender is Bishop) cases = CalculBishop((Bishop)sender);
+            else if (sender is Rook) cases = CalculRook((Rook)sender);
+            else if (sender is Queen) cases = CalculQueen((Queen)sender);
+            else if (sender is King) cases = CalculKing((King)sender);
+            return cases;
+        }
         private void ShowKing(King sender)
         {
             List<Case> res = CalculKing(sender);
@@ -525,14 +562,14 @@ namespace chess
             smPiece.simulation(GoTo);
             GoTo.simulation(smPiece);
 
-            bool r = !KingIsInChess(smKing, enemy);
+            bool r = !KingIsInCheck(smKing, enemy);
 
             smPiece.simulation(smPiece.Simulation);
             GoTo.simulation(GoTo.Simulation);
 
             return r;
         }
-        private bool KingIsInChess(King king, List<Piece> enemy)
+        private bool KingIsInCheck(King king, List<Piece> enemy)
         {
             foreach (Piece piece in enemy)
             {
@@ -544,18 +581,32 @@ namespace chess
 
         private bool CanKill(Piece killer, Piece victim)
         {
-            List<Case> cases = null;
-            if (killer is Pawn) cases = CalculPawn((Pawn)killer);
-            else if (killer is Knight) cases = CalculKnight((Knight)killer);
-            else if (killer is Bishop) cases = CalculBishop((Bishop)killer);
-            else if (killer is Rook) cases = CalculRook((Rook)killer);
-            else if (killer is Queen) cases = CalculQueen((Queen)killer);
-            else if (killer is King) cases = CalculKing((King)killer);
+            List<Case> cases = CalculMoves(killer);
 
             if (cases != null && cases.Contains(victim.Case))
                 return true;
             return false;
 
+        }
+        private bool IsCheckMate(bool color)
+        {
+            List<Piece> smPieces = Clone.CloneList<Piece>(Pieces);
+            List<Piece> enemy = smPieces.Where(p => p.Color != color).ToList();
+            List<Piece> Ally = smPieces.Where(p => p.Color == color).ToList();
+
+            King smKing = (King)smPieces.Where(p => p.Color == color && p is King).FirstOrDefault();
+
+            if (!KingIsInCheck(smKing, enemy)) return false;
+
+            foreach(Piece pc in Ally)
+            {
+                foreach(Case cs in CalculMoves(pc))
+                {
+                    if (CanMoveTo(pc, cs)) return false;
+                }
+            }
+
+            return true;
         }
     }
 
