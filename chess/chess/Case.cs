@@ -11,6 +11,7 @@ namespace chess
     {
         public int Id {  get; set; }
         public Piece? Piece {  get; private set; }
+        public Piece? Simulation { get; set; }
         public int x {  get; set; }
         public int y { get; set; }
         public Case(int id) : base()
@@ -23,6 +24,11 @@ namespace chess
             Piece = piece;
             Piece.move(this);
             Children.Add(Piece);
+        }
+        public void simulation(Piece piece)
+        {
+            Simulation = Piece;
+            Piece = piece;
         }
 
         public void RemovePiece()

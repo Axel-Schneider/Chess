@@ -12,6 +12,7 @@ namespace chess
     public abstract class Piece : Image, ICloneable
     {
         public int Id { get; protected set; }
+        public static int count { get; protected set; }
         public bool Color { get; protected set; }
         public bool AlreadyMoved
         {
@@ -21,6 +22,7 @@ namespace chess
             }
         }
         public Case Case { get; protected set; }
+        public Case Simulation { get; set; }
         public List<Case> Moved { get; set; }
 
         protected int moveCount = 0;
@@ -30,9 +32,16 @@ namespace chess
             this.Case = @case;
             moveCount++;
         }
+        public void simulation(Case @case)
+        {
+            Simulation = Case;
+            Case = @case;
+        }
         public Piece(bool color) : base()
         {
             Color = color;
+            Id = count;
+            count++;
         }
         protected void setImage(string ImageUri)
         {
@@ -56,12 +65,15 @@ namespace chess
 
         public override object Clone()
         {
-            return new Pawn(Color)
+            Pawn r = new Pawn(Color)
             {
                 Case = this.Case,
+                Simulation = this.Case,
                 moveCount = this.moveCount,
-                Id = Id
+                Id = this.Id
             };
+            Case.Simulation = r;
+            return r;
         }
     }
 
@@ -73,12 +85,15 @@ namespace chess
         }
         public override object Clone()
         {
-            return new Bishop(Color)
+            Bishop r = new Bishop(Color)
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
-                Id = Id
+                Simulation = this.Case,
+                Id = this.Id
             };
+            Case.Simulation = r;
+            return r;
         }
     }
 
@@ -90,12 +105,15 @@ namespace chess
         }
         public override object Clone()
         {
-            return new Knight(Color)
+            Knight r = new Knight(Color)
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
-                Id = Id
+                Simulation = this.Case,
+                Id = this.Id
             };
+            Case.Simulation = r;
+            return r;
         }
     }
 
@@ -107,12 +125,15 @@ namespace chess
         }
         public override object Clone()
         {
-            return new Rook(Color)
+            Rook r = new Rook(Color)
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
-                Id = Id
+                Simulation = this.Case,
+                Id = this.Id
             };
+            Case.Simulation = r;
+            return r;
         }
     }
 
@@ -124,12 +145,15 @@ namespace chess
         }
         public override object Clone()
         {
-            return new Queen(Color)
+            Queen r = new Queen(Color)
             {
                 Case = this.Case,
+                Simulation = this.Case,
                 moveCount = this.moveCount,
-                Id = Id
+                Id = this.Id
             };
+            Case.Simulation = r;
+            return r;
         }
     }
 
@@ -141,12 +165,15 @@ namespace chess
     }
     public override object Clone()
     {
-        return new King(Color)
+        King r = new King(Color)
         {
             Case = this.Case,
+            Simulation = this.Case,
             moveCount = this.moveCount,
-            Id = Id
+            Id = this.Id
         };
+            Case.Simulation = r;
+            return r;
+        }
     }
-}
 }
