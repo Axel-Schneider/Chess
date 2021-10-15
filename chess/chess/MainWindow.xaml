@@ -5,9 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:chess"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="560" Width="840">
     <Grid x:Name="mainGrid">
-        <Button Content="Button" HorizontalAlignment="Left" Margin="25,38,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-
+        <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="520" Margin="10,10,0,0" VerticalAlignment="Top" Width="520" Background="#FFEAEAEA">
+        </Grid>
+        <Grid HorizontalAlignment="Left" Height="253" Margin="535,10,0,0" VerticalAlignment="Top" Width="295" Background="Black">
+            <Label Content="Dev en cours" HorizontalAlignment="Center" Margin="0,109,0,0" VerticalAlignment="Top" Width="193" Foreground="White"/>
+        </Grid>
+        <Grid HorizontalAlignment="Left" Height="262" Margin="535,268,0,0" VerticalAlignment="Top" Width="295" Background="Black">
+            <Label Content="Dev en cours" HorizontalAlignment="Center" Margin="0,109,0,0" VerticalAlignment="Top" Width="193" Foreground="White"/>
+        </Grid>
     </Grid>
 </Window>

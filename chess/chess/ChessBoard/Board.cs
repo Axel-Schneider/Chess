@@ -561,13 +561,16 @@ namespace chess
             {
                 return false;
             }
+            bool r;
+            smPiece.Case.simulation(null);
             smPiece.simulation(GoTo);
             GoTo.simulation(smPiece);
+            r = !KingIsInCheck(smKing, enemy);
 
-            bool r = !KingIsInCheck(smKing, enemy);
-
+            smPiece.Simulation.simulation(smKing);
             smPiece.simulation(smPiece.Simulation);
             GoTo.simulation(GoTo.Simulation);
+
 
             return r;
         }

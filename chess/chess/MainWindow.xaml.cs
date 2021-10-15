@@ -24,14 +24,22 @@ namespace chess
         public MainWindow()
         {
             InitializeComponent();
+            Height = BoardGrid.Height + 60;
+
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(GraphicPath.Show.Background);
+            bitmap.EndInit();
+
+            BoardGrid.Background = new ImageBrush(bitmap);
+
             board = new Board()
             {
                 Name = "Board",
-                Height = 400,
-                Width = 400,
-                Background = Brushes.Black
+                Height = BoardGrid.Height - 20,
+                Width = BoardGrid.Width - 20,
             };
-            mainGrid.Children.Add(board);
+            BoardGrid.Children.Add(board);
             board.RegenerateBoard();
         }
 
