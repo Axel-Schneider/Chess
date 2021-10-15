@@ -14,19 +14,30 @@ namespace chess
     {
         public const int BOARD_SIZE = 8;
         public const int BOARD_BORDER = 2;
-        
+        public const char
+            CHAR_KING = 'k',
+            CHAR_QUEEN = 'q',
+            CHAR_ROOK = 'r',
+            CHAR_KNIGHT = 'n',
+            CHAR_BISHOP = 'b',
+            CHAR_PAWN = 'p',
+            CHAR_LINE = '/',
+            CHAR_EMPTY = ' ';
+        public const string DEFAULT_PATTERN = "rnbqkbnr/pppppppp";
+
+
         public double CaseWith { get; private set; } = -1;
         public double CaseHeight { get; private set; } = -1;
-        public string Patern { get; private set; }
+        public string Pattern { get; private set; }
 
         public List<Case> Cases { get; private set; }
         public List<Piece> Pieces { get; private set; }
 
         private TypeSwitch ts;
         private List<Image> moves;
-        public Board(string patern = "rnbqkbnr/pppppppp") : base()
+        public Board(string pattern = DEFAULT_PATTERN) : base()
         {
-            Patern = patern;
+            Pattern = pattern;
             Pieces = new List<Piece>();
             ts = new TypeSwitch()
                 .Case((Pawn x) => CalculPawn(x))
@@ -87,9 +98,9 @@ namespace chess
         {
             int i = 0;
             int y = 0;
-            foreach (char c in Patern.ToLower())
+            foreach (char c in Pattern.ToLower())
             {
-                if(c == '/')
+                if(c == CHAR_LINE)
                 {
                     y++;
                     i = (BOARD_SIZE) * y;
@@ -103,29 +114,29 @@ namespace chess
                 int bx, by;
                 switch (c)
                 {
-                    case 'r':
+                    case CHAR_ROOK:
                         black = new Rook(false);
                         white = new Rook(true);
                         break;
-                    case 'n':
+                    case CHAR_KNIGHT:
                         black = new Knight(false);
                         white = new Knight(true);
                         break;
-                    case 'b':
+                    case CHAR_BISHOP:
                         black = new Bishop(false);
                         white = new Bishop(true);
                         break;
-                    case 'q':
+                    case CHAR_QUEEN:
                         black = new Queen(false);
                         white = new Queen(true);
                         break;
-                    case 'k':
+                    case CHAR_KING:
                         black = new King(false);
                         white = new King(true);
                         break;
-                    case ' ':
+                    case CHAR_EMPTY:
                         break;
-                    case 'p':
+                    case CHAR_PAWN:
                     default:
                         black = new Pawn(false);
                         white = new Pawn(true);
