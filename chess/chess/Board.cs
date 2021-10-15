@@ -40,12 +40,12 @@ namespace chess
             Pattern = pattern;
             Pieces = new List<Piece>();
             ts = new TypeSwitch()
-                .Case((Pawn x) => CalculPawn(x))
-                .Case((Bishop x) => CalculBishop(x))
-                .Case((Knight x) => CalculKnight(x))
-                .Case((Rook x) => CalculRook(x))
-                .Case((Queen x) => CalculQueen(x))
-                .Case((King x) => CalculKing(x));
+                .Case((Pawn x) => ShowPawn(x))
+                .Case((Bishop x) => ShowBishop(x))
+                .Case((Knight x) => ShowKnight(x))
+                .Case((Rook x) => ShowRook(x))
+                .Case((Queen x) => ShowQueen(x))
+                .Case((King x) => ShowKing(x));
         }
 
         public void RegenerateBoard()
@@ -301,7 +301,7 @@ namespace chess
             result.MouseDown += Piece_MouseDown;
             source.Case.AddPiece(result);
         }
-        private void CalculKing(King sender)
+        private List<Case> CalculKing(King sender)
         {
             var mvs = new List<int>();
             foreach (int i in new int[] { 1, BOARD_SIZE - 1, BOARD_SIZE, BOARD_SIZE + 1 })
@@ -352,33 +352,33 @@ namespace chess
                 }
             }
 
-            showMoves(sender, res);
+            return res;
         }
 
-        private void CalculQueen(Queen sender)
+        private List<Case> CalculQueen(Queen sender)
         {
             List<Case> res = new List<Case>();
             res.AddRange(CalculDiagonal(sender));
             res.AddRange(CalculLine(sender));
 
-            showMoves(sender, res);
+            return res;
         }
 
-        private void CalculRook(Rook sender)
+        private List<Case> CalculRook(Rook sender)
         {
             List<Case> res = CalculLine(sender);
 
-            showMoves(sender, res);
+            return res;
         }
 
-        private void CalculBishop(Bishop sender)
+        private List<Case> CalculBishop(Bishop sender)
         {
             List<Case> res = CalculDiagonal(sender);
 
-            showMoves(sender, res);
+            return res;
         }
 
-        private void CalculKnight(Knight sender)
+        private List<Case> CalculKnight(Knight sender)
         {
             List<Case> res = new List<Case>();
             var mvs = new List<int>();
@@ -396,10 +396,10 @@ namespace chess
                     if(obj.Piece == null || obj.Piece.Color != sender.Color) res.Add(obj);
                 }
             }
-            showMoves(sender, res);
+            return res;
         }
 
-        private void CalculPawn(Pawn sender)
+        private List<Case> CalculPawn(Pawn sender)
         {
             int mv = sender.Color ? -1 : 1;
             List<Case> res = new List<Case>();
@@ -424,7 +424,7 @@ namespace chess
                     res.Add(obj);
             }
 
-            showMoves(sender, res);
+            return res;
         }
 
         private List<Case> CalculLine(Piece sender)
@@ -477,6 +477,37 @@ namespace chess
             }
             return res;
         }
+
+        private void ShowKing(King sender)
+        {
+            List<Case> res = CalculKing(sender);
+            showMoves(sender, res);
+        }
+        private void ShowQueen(Queen sender)
+        {
+            List<Case> res = CalculQueen(sender);
+            showMoves(sender, res);
+        }
+        private void ShowRook(Rook sender)
+        {
+            List<Case> res = CalculRook(sender);
+            showMoves(sender, res);
+        }
+        private void ShowBishop(Bishop sender)
+        {
+            List<Case> res = CalculBishop(sender);
+            showMoves(sender, res);
+        }
+        private void ShowKnight(Knight sender)
+        {
+            List<Case> res = CalculKnight(sender);
+            showMoves(sender, res);
+        }
+        private void ShowPawn(Pawn sender)
+        {
+            List<Case> res = CalculPawn(sender);
+            showMoves(sender, res);
+        }
     }
 
     public class TypeSwitch
@@ -484,5 +515,12 @@ namespace chess
         Dictionary<Type, Action<object>> matches = new Dictionary<Type, Action<object>>();
         public TypeSwitch Case<T>(Action<T> action) { matches.Add(typeof(T), (x) => action((T)x)); return this; }
         public void Switch(object x) { matches[x.GetType()](x); }
+    }
+    static class Clone
+    {
+        public static List<T> CloneList<T>(this List<T> listToClone) where T : ICloneable
+        {
+            return listToClone.Select(item => (T)item.Clone()).ToList();
+        }
     }
 }
