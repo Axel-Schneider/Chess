@@ -52,7 +52,7 @@ namespace chess
         {
             GenerateBoard();
         }
-        
+
         private void Calculate()
         {
             CaseWith = Width / BOARD_SIZE;
@@ -62,12 +62,12 @@ namespace chess
         private void GenerateBoard()
         {
             Calculate();
-            if(CaseHeight > 0 && CaseWith > 0)
+            if (CaseHeight > 0 && CaseWith > 0)
             {
                 Cases = new List<Case>();
-                for(int i = 0; i < BOARD_SIZE; i++)
+                for (int i = 0; i < BOARD_SIZE; i++)
                 {
-                    for(int j = 0; j < BOARD_SIZE; j++)
+                    for (int j = 0; j < BOARD_SIZE; j++)
                     {
                         int id = i * BOARD_SIZE + j;
                         Case @case = new Case(id)
@@ -100,7 +100,7 @@ namespace chess
             int y = 0;
             foreach (char c in Pattern.ToLower())
             {
-                if(c == CHAR_LINE)
+                if (c == CHAR_LINE)
                 {
                     y++;
                     i = (BOARD_SIZE) * y;
@@ -143,7 +143,7 @@ namespace chess
                         break;
                 }
                 bx = i;
-                while(bx >= BOARD_SIZE)
+                while (bx >= BOARD_SIZE)
                 {
                     bx -= BOARD_SIZE;
                 }
@@ -219,17 +219,17 @@ namespace chess
         private void showMoves(Piece piece, List<Case> cases)
         {
             if (cases.Count <= 0) return;
-            if(moves != null)
+            if (moves != null)
             {
                 foreach (Image i in moves)
                 {
-                    if(i.Parent != null)
+                    if (i.Parent != null)
                         ((Grid)i.Parent).Children.Remove(i);
                 }
             }
             moves = new List<Image>();
 
-            foreach(Case c in cases)
+            foreach (Case c in cases)
             {
                 if (CanMoveTo(piece, c))
                 {
@@ -294,7 +294,6 @@ namespace chess
                         }
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
-
                     };
                 }
             }
@@ -320,7 +319,7 @@ namespace chess
                 Case obj = Cases.Where(c => c.Id == sender.Case.Id + mv && Math.Abs(c.y - sender.Case.y) < 2 && Math.Abs(c.x - sender.Case.x) < 2).FirstOrDefault();
                 if (obj != null)
                 {
-                    if(obj.Piece == null || obj.Piece.Color != sender.Color)
+                    if (obj.Piece == null || obj.Piece.Color != sender.Color)
                     {
                         res.Add(obj);
                     }
@@ -331,15 +330,15 @@ namespace chess
             if (!sender.AlreadyMoved)
             {
                 List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color).ToList();
-                foreach(Piece rook in rooks)
+                foreach (Piece rook in rooks)
                 {
                     int inc = (sender.Case.Id > rook.Case.Id) ? -1 : 1;
                     bool canCastle = true;
-                    for(int i = sender.Case.Id + inc; i != rook.Case.Id; i += inc)
+                    for (int i = sender.Case.Id + inc; i != rook.Case.Id; i += inc)
                     {
                         if (i < 0 || i > BOARD_SIZE * BOARD_SIZE) break;
                         Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
-                        if(obj != null && obj.Piece != null)
+                        if (obj != null && obj.Piece != null)
                         {
                             canCastle = false;
                             break;
@@ -348,7 +347,7 @@ namespace chess
                     if (canCastle)
                     {
                         Case obj = Cases.Where(c => c.Id == sender.Case.Id + inc * 2).FirstOrDefault();
-                        if(obj != null && obj.Piece == null)
+                        if (obj != null && obj.Piece == null)
                         {
                             res.Add(obj);
                         }
@@ -397,7 +396,7 @@ namespace chess
                 Case obj = Cases.Where(c => c.Id == sender.Case.Id + mv && Math.Abs(c.y - sender.Case.y) < 3 && Math.Abs(c.x - sender.Case.x) < 3).FirstOrDefault();
                 if (obj != null)
                 {
-                    if(obj.Piece == null || obj.Piece.Color != sender.Color) res.Add(obj);
+                    if (obj.Piece == null || obj.Piece.Color != sender.Color) res.Add(obj);
                 }
             }
             return res;
@@ -411,7 +410,7 @@ namespace chess
 
             obj = Cases.Where(c => c.Id == sender.Case.Id + BOARD_SIZE * mv).FirstOrDefault();
             if (obj != null && obj.Piece == null)
-            {   
+            {
                 res.Add(obj);
 
                 if (!sender.AlreadyMoved)
@@ -421,10 +420,10 @@ namespace chess
                 }
             }
 
-            foreach (int i in new int[] { 1, -1})
+            foreach (int i in new int[] { 1, -1 })
             {
-                obj = Cases.Where(c => c.Id == sender.Case.Id + BOARD_SIZE * mv + i && c.y == sender.Case.y+ mv).FirstOrDefault();
-                if(obj != null && (obj.Piece != null && obj.Piece.Color != sender.Color)) 
+                obj = Cases.Where(c => c.Id == sender.Case.Id + BOARD_SIZE * mv + i && c.y == sender.Case.y + mv).FirstOrDefault();
+                if (obj != null && (obj.Piece != null && obj.Piece.Color != sender.Color))
                     res.Add(obj);
             }
 
@@ -553,13 +552,11 @@ namespace chess
             else if (killer is Queen) cases = CalculQueen((Queen)killer);
             else if (killer is King) cases = CalculKing((King)killer);
 
-            if (cases != null && cases.Contains(victim.Case)) 
+            if (cases != null && cases.Contains(victim.Case))
                 return true;
             return false;
 
         }
-    
-    
     }
 
     public class TypeSwitch

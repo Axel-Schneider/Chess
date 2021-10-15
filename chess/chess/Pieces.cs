@@ -162,16 +162,16 @@ namespace chess
         public King(bool color) : base(color)
         {
             setImage(GraphicPath.Pieces.King(color));
-    }
-    public override object Clone()
-    {
-        King r = new King(Color)
+        }
+        public override object Clone()
         {
-            Case = this.Case,
-            Simulation = this.Case,
-            moveCount = this.moveCount,
-            Id = this.Id
-        };
+            King r = new King(Color)
+            {
+                Case = this.Case,
+                Simulation = this.Case,
+                moveCount = this.moveCount,
+                Id = this.Id
+            };
             Case.Simulation = r;
             return r;
         }
