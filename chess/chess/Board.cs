@@ -175,12 +175,6 @@ namespace chess
             return new ImageBrush(bitmap);
         }
 
-        public void tmp()
-        {
-            Random rdm = new Random();
-            Piece pc = Pieces.Where(p => rdm.Next(2) % 2 == 0).First();
-            Cases.Where(p => rdm.Next(2) % 2 == 0).First().AddPiece(pc);
-        }
         private Piece rdmPiece()
         {
             Random rdm = new Random();
@@ -255,8 +249,6 @@ namespace chess
                     {
                         ((Grid)i.Parent).Children.Remove(i);
                     }
-                    piece.Case.RemovePiece();
-                    c.AddPiece(piece);
                     if(piece is Pawn && (piece.Case.y == 0 || piece.Case.y == BOARD_SIZE - 1) )
                     {
                         Promotion prm = new Promotion(PawnPromotionCallback, piece)
@@ -273,6 +265,33 @@ namespace chess
                         prm.generateUI();
                         Children.Add(prm);
                     }
+
+                    if(piece is King && (Math.Abs(piece.Case.x - c.x) == 2))
+                    {
+                        int inc = (piece.Case.Id - c.Id > 0) ? -1 : 1;
+                        Rook rk = null;
+                        for(int i = piece.Case.Id; i >= 0 && i <= BOARD_SIZE*BOARD_SIZE; i += inc)
+                        {
+                            Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
+                            if(obj != null && obj.Piece != null && obj.Piece is Rook)
+                            {
+                                rk = (Rook)obj.Piece;
+                                break;
+                            }
+                        }
+                        if (rk == null) return;
+                        else
+                        {
+                            rk.Case.RemovePiece();
+                            Case obj = Cases.Where(c => c.Id == piece.Case.Id + inc).FirstOrDefault();
+                            if(obj != null)
+                            {
+                                obj.AddPiece(rk);
+                            }
+                        }
+                    }
+                    piece.Case.RemovePiece();
+                    c.AddPiece(piece);
                 };
             }
         }
@@ -300,6 +319,35 @@ namespace chess
                     if(obj.Piece == null || obj.Piece.Color != sender.Color)
                     {
                         res.Add(obj);
+                    }
+                }
+            }
+
+
+            if (!sender.AlreadyMoved)
+            {
+                List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color).ToList();
+                foreach(Piece rook in rooks)
+                {
+                    int inc = (sender.Case.Id > rook.Case.Id) ? -1 : 1;
+                    bool canCastle = true;
+                    for(int i = sender.Case.Id + inc; i != rook.Case.Id; i += inc)
+                    {
+                        if (i < 0 || i > BOARD_SIZE * BOARD_SIZE) break;
+                        Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
+                        if(obj != null && obj.Piece != null)
+                        {
+                            canCastle = false;
+                            break;
+                        }
+                    }
+                    if (canCastle)
+                    {
+                        Case obj = Cases.Where(c => c.Id == sender.Case.Id + inc * 2).FirstOrDefault();
+                        if(obj != null && obj.Piece == null)
+                        {
+                            res.Add(obj);
+                        }
                     }
                 }
             }
