@@ -17,14 +17,16 @@ namespace chess
         
         public double CaseWith { get; private set; } = -1;
         public double CaseHeight { get; private set; } = -1;
+        public string Patern { get; private set; }
 
         public List<Case> Cases { get; private set; }
         public List<Piece> Pieces { get; private set; }
 
         private TypeSwitch ts;
         private List<Image> moves;
-        public Board() : base()
-        { 
+        public Board(string patern = "rnbqkbnr/pppppppp") : base()
+        {
+            Patern = patern;
             Pieces = new List<Piece>();
             ts = new TypeSwitch()
                 .Case((Pawn x) => CalculPawn(x))
@@ -70,22 +72,87 @@ namespace chess
                         };
                         Children.Add(@case);
                         Cases.Add(@case);
-
-                        if((i+j) % 3 == 0)
-                        {
-                            Piece piece = rdmPiece();
-                            Pieces.Add(piece);
-                            @case.AddPiece(piece);
-                        }
                     }
                 }
             }
+            generatePieces();
             Border brd = new Border()
             {
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(BOARD_BORDER, BOARD_BORDER, BOARD_BORDER, BOARD_BORDER),
             };
             Children.Add(brd);
+        }
+        private void generatePieces()
+        {
+            int i = 0;
+            int y = 0;
+            foreach (char c in Patern.ToLower())
+            {
+                if(c == '/')
+                {
+                    y++;
+                    i = (BOARD_SIZE) * y;
+                    continue;
+                }
+                Piece black = null;
+                Piece white = null;
+                Case cblack = null;
+                Case cwhite = null;
+                int wx, wy;
+                int bx, by;
+                switch (c)
+                {
+                    case 'r':
+                        black = new Rook(false);
+                        white = new Rook(true);
+                        break;
+                    case 'n':
+                        black = new Knight(false);
+                        white = new Knight(true);
+                        break;
+                    case 'b':
+                        black = new Bishop(false);
+                        white = new Bishop(true);
+                        break;
+                    case 'q':
+                        black = new Queen(false);
+                        white = new Queen(true);
+                        break;
+                    case 'k':
+                        black = new King(false);
+                        white = new King(true);
+                        break;
+                    case ' ':
+                        break;
+                    case 'p':
+                    default:
+                        black = new Pawn(false);
+                        white = new Pawn(true);
+                        break;
+                }
+                bx = i;
+                while(bx >= BOARD_SIZE)
+                {
+                    bx -= BOARD_SIZE;
+                }
+                wx = bx;
+                by = y;
+                wy = BOARD_SIZE - y - 1;
+                cwhite = Cases.Where(c => c.x == wx && c.y == wy).FirstOrDefault();
+                cblack = Cases.Where(c => c.x == bx && c.y == by).FirstOrDefault();
+                if (black != null && cblack != null) addPiece(black, cblack);
+                if (white != null && cwhite != null) addPiece(white, cwhite);
+                i++;
+            }
+
+
+        }
+        private void addPiece(Piece piece, Case @case)
+        {
+            Pieces.Add(piece);
+            @case.AddPiece(piece);
+            piece.MouseDown += Piece_MouseDown;
         }
         private Brush GetBrush(int id)
         {
