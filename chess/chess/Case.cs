@@ -9,10 +9,10 @@ namespace chess
 {
     public class Case : Grid, ICloneable
     {
-        public int Id {  get; set; }
-        public Piece? Piece {  get; private set; }
+        public int Id { get; set; }
+        public Piece? Piece { get; private set; }
         public Piece? Simulation { get; set; }
-        public int x {  get; set; }
+        public int x { get; set; }
         public int y { get; set; }
         public Case(int id) : base()
         {
