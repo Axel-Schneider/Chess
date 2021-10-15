@@ -29,6 +29,7 @@ namespace chess
         public double CaseWith { get; private set; } = -1;
         public double CaseHeight { get; private set; } = -1;
         public string Pattern { get; private set; }
+        public bool Turn { get; private set; } = true;
 
         public List<Case> Cases { get; private set; }
         public List<Piece> Pieces { get; private set; }
@@ -209,7 +210,8 @@ namespace chess
 
         private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            CalculPosition((Piece)sender);
+            if(((Piece)sender).Color == Turn)
+                CalculPosition((Piece)sender);
         }
         private void CalculPosition(Piece sender)
         {
@@ -294,8 +296,8 @@ namespace chess
                         }
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
-
-                        if (IsCheckMate(!piece.Color))
+                        Turn = !Turn;
+                        if (IsCheckMate(Turn))
                         {
                             EndGame();
                         }
