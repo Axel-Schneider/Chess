@@ -24,7 +24,7 @@ namespace chess
         public MainWindow()
         {
             InitializeComponent();
-            board = new Board("r   k  r/pppppppp")
+            board = new Board()
             {
                 Name = "Board",
                 Height = 400,
