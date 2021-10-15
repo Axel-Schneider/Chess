@@ -179,10 +179,31 @@ namespace chess
                     }
                     piece.Case.RemovePiece();
                     c.AddPiece(piece);
+                    if(piece is Pawn && (piece.Case.y == 0 || piece.Case.y == BOARD_SIZE - 1) )
+                    {
+                        Promotion prm = new Promotion(PawnPromotionCallback, piece)
+                        {
+                            Width = Width,
+                            Height = Height,
+                            Background = new SolidColorBrush()
+                            {
+                                Color = Color.FromRgb(0,0,0),
+                                Opacity = 0.5
+                            }
+                            
+                        };
+                        prm.generateUI();
+                        Children.Add(prm);
+                    }
                 };
             }
         }
 
+        private void PawnPromotionCallback(Piece result, Piece source)
+        {
+            result.MouseDown += Piece_MouseDown;
+            source.Case.AddPiece(result);
+        }
         private void CalculKing(King sender)
         {
             var mvs = new List<int>();
