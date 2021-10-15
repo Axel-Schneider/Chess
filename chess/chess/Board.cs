@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -484,5 +484,12 @@ namespace chess
         Dictionary<Type, Action<object>> matches = new Dictionary<Type, Action<object>>();
         public TypeSwitch Case<T>(Action<T> action) { matches.Add(typeof(T), (x) => action((T)x)); return this; }
         public void Switch(object x) { matches[x.GetType()](x); }
+    }
+    static class Clone
+    {
+        public static List<T> CloneList<T>(this List<T> listToClone) where T : ICloneable
+        {
+            return listToClone.Select(item => (T)item.Clone()).ToList();
+        }
     }
 }

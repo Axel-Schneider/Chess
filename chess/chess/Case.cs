@@ -7,7 +7,7 @@ using System.Windows.Controls;
 
 namespace chess
 {
-    public class Case : Grid
+    public class Case : Grid, ICloneable
     {
         public int Id {  get; set; }
         public Piece? Piece {  get; private set; }
@@ -29,6 +29,15 @@ namespace chess
         {
             Piece = null;
             Children.Clear();
+        }
+        public object Clone()
+        {
+            return new Case(Id)
+            {
+                Piece = Piece,
+                x = this.x,
+                y = this.y
+            };
         }
     }
 }
