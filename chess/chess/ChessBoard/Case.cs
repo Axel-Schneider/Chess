@@ -33,7 +33,7 @@ namespace chess
 
         public void RemovePiece()
         {
-            Piece = null;
+            Piece = null; 
             Children.Clear();
         }
         public object Clone()

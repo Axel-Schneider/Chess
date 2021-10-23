@@ -1,0 +1,1 @@
+﻿position du roi n'est pas toujours juste dans les variables (case)

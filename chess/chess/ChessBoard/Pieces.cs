@@ -14,6 +14,7 @@ namespace chess
         public int Id { get; protected set; }
         public static int count { get; protected set; }
         public bool Color { get; protected set; }
+        public bool IsAlive { get; protected set; } = true;
         public bool AlreadyMoved
         {
             get
@@ -52,7 +53,12 @@ namespace chess
 
             Source = bitmap;
         }
-
+        public void Delete()
+        {
+            Case = null;
+            Simulation = null;
+            IsAlive = false;
+        }
         public abstract object Clone();
     }
 

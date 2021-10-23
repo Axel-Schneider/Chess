@@ -233,7 +233,7 @@ namespace chess
 
             foreach (Case c in cases)
             {
-                if (CanMoveTo(piece, c))
+                if (piece.IsAlive && CanMoveTo(piece, c))
                 {
                     BitmapImage bitmap = new BitmapImage();
                     bitmap.BeginInit();
@@ -294,6 +294,11 @@ namespace chess
                                 }
                             }
                         }
+                        if (c.Piece != null)
+                        {
+                            Pieces.Remove(c.Piece);
+                            c.Piece.Delete();
+                        }
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
                         Turn = !Turn;
@@ -347,7 +352,7 @@ namespace chess
                 Case obj = Cases.Where(c => c.Id == sender.Case.Id + mv && Math.Abs(c.y - sender.Case.y) < 2 && Math.Abs(c.x - sender.Case.x) < 2).FirstOrDefault();
                 if (obj != null)
                 {
-                    if (obj.Piece == null || obj.Piece.Color != sender.Color)
+                    if (obj.Piece == null || !obj.Piece.IsAlive || obj.Piece.Color != sender.Color)
                     {
                         res.Add(obj);
                     }
@@ -357,7 +362,7 @@ namespace chess
 
             if (!sender.AlreadyMoved)
             {
-                List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color).ToList();
+                List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color && p.IsAlive).ToList();
                 foreach (Piece rook in rooks)
                 {
                     int inc = (sender.Case.Id > rook.Case.Id) ? -1 : 1;
@@ -424,7 +429,7 @@ namespace chess
                 Case obj = Cases.Where(c => c.Id == sender.Case.Id + mv && Math.Abs(c.y - sender.Case.y) < 3 && Math.Abs(c.x - sender.Case.x) < 3).FirstOrDefault();
                 if (obj != null)
                 {
-                    if (obj.Piece == null || obj.Piece.Color != sender.Color) res.Add(obj);
+                    if (obj.Piece == null || !obj.Piece.IsAlive || obj.Piece.Color != sender.Color) res.Add(obj);
                 }
             }
             return res;
@@ -437,14 +442,14 @@ namespace chess
             Case obj = null;
 
             obj = Cases.Where(c => c.Id == sender.Case.Id + BOARD_SIZE * mv).FirstOrDefault();
-            if (obj != null && obj.Piece == null)
+            if (obj != null && (obj.Piece == null || !obj.Piece.IsAlive))
             {
                 res.Add(obj);
 
                 if (!sender.AlreadyMoved)
                 {
                     obj = Cases.Where(c => c.Id == sender.Case.Id + BOARD_SIZE * (mv * 2)).FirstOrDefault();
-                    if (obj != null && obj.Piece == null) res.Add(obj);
+                    if (obj != null && (obj.Piece == null || !obj.Piece.IsAlive)) res.Add(obj);
                 }
             }
 
@@ -471,8 +476,8 @@ namespace chess
                     Case obj = Cases.Where(c => c.Id == i && (c.y == sender.Case.y || c.x == sender.Case.x)).FirstOrDefault();
                     if (obj != null)
                     {
-                        if (obj.Piece == null || obj.Piece.Color != sender.Color) res.Add(obj);
-                        if (obj.Piece != null) break;
+                        if (obj.Piece == null || !obj.Piece.IsAlive || obj.Piece.Color != sender.Color) res.Add(obj);
+                        if (obj.Piece != null && obj.Piece.IsAlive) break;
                     }
                 }
             }
@@ -496,13 +501,13 @@ namespace chess
 
                         if (Math.Abs(last.x - obj.x) == 1 && Math.Abs(last.y - obj.y) == 1)
                         {
-                            if (obj.Piece == null || obj.Piece.Color != sender.Color)
+                            if (obj.Piece == null || !obj.Piece.IsAlive || obj.Piece.Color != sender.Color)
                             {
                                 res.Add(obj);
                                 last = obj;
                             }
                         }
-                        if (obj.Piece != null) break;
+                        if (obj.Piece != null && obj.Piece.IsAlive) break;
                     }
                 }
             }
@@ -552,18 +557,22 @@ namespace chess
         }
         private bool CanMoveTo(Piece piece, Case GoTo)
         {
-            List<Piece> smPieces = Clone.CloneList<Piece>(Pieces);
+            List<Piece> smPieces = Clone.CloneList<Piece>(Pieces).Where(p => p != null && p.IsAlive).ToList();
             List<Piece> enemy = smPieces.Where(p => p.Color != piece.Color).ToList();
             King smKing = (King)smPieces.Where(p => p.Color == piece.Color && p is King).FirstOrDefault();
 
             Piece smPiece = smPieces.Where(p => p.Id == piece.Id).FirstOrDefault();
-            if (smPieces == null)
+            if (smPiece == null || smKing == null)
             {
                 return false;
             }
             bool r;
             smPiece.Case.simulation(null);
             smPiece.simulation(GoTo);
+            if(GoTo.Piece != null)
+            {
+                enemy.Remove(enemy.Where(p => p.Id == GoTo.Piece.Id).FirstOrDefault());
+            }
             GoTo.simulation(smPiece);
             r = !KingIsInCheck(smKing, enemy);
 
@@ -595,12 +604,13 @@ namespace chess
         }
         private bool IsCheckMate(bool color)
         {
-            List<Piece> smPieces = Clone.CloneList<Piece>(Pieces);
+            List<Piece> smPieces = Clone.CloneList<Piece>(Pieces).Where(p => p != null && p.IsAlive).ToList();
             List<Piece> enemy = smPieces.Where(p => p.Color != color).ToList();
             List<Piece> Ally = smPieces.Where(p => p.Color == color).ToList();
 
             King smKing = (King)smPieces.Where(p => p.Color == color && p is King).FirstOrDefault();
 
+            if (smKing == null) return false;
             if (!KingIsInCheck(smKing, enemy)) return false;
 
             foreach(Piece pc in Ally)
