@@ -218,7 +218,7 @@ namespace chess
             pc.MouseDown += Piece_MouseDown;
             return pc;
         }
-        private void EndGame()
+        private void EndGame(string message)
         {
             Background = new SolidColorBrush()
             {
@@ -232,7 +232,7 @@ namespace chess
             Children.Add(grid);
             Label lbl = new Label()
             {
-                Content = "GAME OVER",
+                Content = message,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 0),
@@ -503,14 +503,19 @@ namespace chess
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
                         Turn = !Turn;
+                        if (!AsMove(Turn))
+                        {
+                            EndGame("Stalemate");
+                        }
                         if (IsCheckMate(Turn))
                         {
-                            EndGame();
+                            EndGame($"{!Turn} WIN");
                         }
                     };
                 }
             }
         }
+
         private void ShowKing(King sender)
         {
             List<Case> res = CalculKing(sender);
@@ -634,8 +639,6 @@ namespace chess
             result.MouseDown += Piece_MouseDown;
             source.Case.AddPiece(result);
         }
-        
-
 
         private bool KingIsInCheck(King king, List<Piece> enemy)
         {
@@ -679,6 +682,19 @@ namespace chess
             return true;
         }
 
+        private bool AsMove(bool turn)
+        {
+            foreach(Piece pc in Pieces.Where(pc => pc.Color == turn))
+            {
+                List<Case> cs = CalculMoves(pc).ToList();
+                foreach(Case c in cs)
+                {
+                    if (CanMoveTo(pc, c)) return true;
+                }
+            }
+
+            return false;
+        }
         #endregion
 
         #region Events
