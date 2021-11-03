@@ -557,10 +557,13 @@ namespace chess
             King smKing = (King)smPieces.Where(p => p.Color == piece.Color && p is King).FirstOrDefault();
             Piece smPiece = smPieces.Where(p => p.Id == piece.Id).FirstOrDefault();
             bool r = false;
+            bool kill = false;
             if (smPiece == null || smKing == null) return false; 
 
             if (GoTo.Piece != null)
             {
+                kill = true;
+                GoTo.SimulateNewPiece(piece);
                 smenemy.Remove(smenemy.Where(p => p.Id == GoTo.Piece.Id).FirstOrDefault());
             }
             smPiece.Case.SimulateNewPiece(null);
@@ -568,6 +571,7 @@ namespace chess
 
             r = !KingIsInCheck(smKing, smenemy);
 
+            if (kill) GoTo.returnToRealPiece();
             smPiece.returnToRealCase();
             smPiece.Case.returnToRealPiece();
 
@@ -653,8 +657,9 @@ namespace chess
         private bool CanKill(Piece killer, Piece victim)
         {
             List<Case> cases = CalculMoves(killer);
+            List<int> csid = cases.Select(c => c.Id).ToList();
 
-            if (cases != null && cases.Contains(victim.Case))
+            if (cases != null && csid.Contains(victim.Case.Id))
                 return true;
             return false;
 
