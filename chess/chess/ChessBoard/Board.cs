@@ -12,6 +12,7 @@ namespace chess
 {
     public class Board : Grid
     {
+        #region Constantes
         public const int BOARD_SIZE = 8;
         public const int BOARD_BORDER = 2;
         public const char
@@ -24,8 +25,9 @@ namespace chess
             CHAR_LINE = '/',
             CHAR_EMPTY = ' ';
         public const string DEFAULT_PATTERN = "rnbqkbnr/pppppppp";
+        #endregion
 
-
+        #region Propertys
         public double CaseWith { get; private set; } = -1;
         public double CaseHeight { get; private set; } = -1;
         public string Pattern { get; private set; }
@@ -33,9 +35,14 @@ namespace chess
 
         public List<Case> Cases { get; private set; }
         public List<Piece> Pieces { get; private set; }
+        #endregion
 
+        #region Object
         private TypeSwitch ts;
         private List<Image> moves;
+        #endregion
+
+        #region Constructor
         public Board(string pattern = DEFAULT_PATTERN) : base()
         {
             Pattern = pattern;
@@ -48,21 +55,26 @@ namespace chess
                 .Case((Queen x) => ShowQueen(x))
                 .Case((King x) => ShowKing(x));
         }
-
+        #endregion
+         
+        #region Public Function
         public void RegenerateBoard()
         {
             GenerateBoard();
         }
+        #endregion
 
-        private void Calculate()
+        #region Private Function
+
+        #region UI
+        private void CalculateUISize()
         {
             CaseWith = Width / BOARD_SIZE;
             CaseHeight = Height / BOARD_SIZE;
         }
-
         private void GenerateBoard()
         {
-            Calculate();
+            CalculateUISize();
             if (CaseHeight > 0 && CaseWith > 0)
             {
                 Cases = new List<Case>();
@@ -87,7 +99,7 @@ namespace chess
                     }
                 }
             }
-            generatePieces();
+            GeneratePieces();
             Border brd = new Border()
             {
                 BorderBrush = Brushes.Black,
@@ -95,7 +107,7 @@ namespace chess
             };
             Children.Add(brd);
         }
-        private void generatePieces()
+        private void GeneratePieces()
         {
             int i = 0;
             int y = 0;
@@ -175,8 +187,7 @@ namespace chess
 
             return new ImageBrush(bitmap);
         }
-
-        private Piece rdmPiece()
+        private Piece GetRandomPiece()
         {
             Random rdm = new Random();
             Piece pc;
@@ -207,109 +218,6 @@ namespace chess
             pc.MouseDown += Piece_MouseDown;
             return pc;
         }
-
-        private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if(((Piece)sender).Color == Turn)
-                CalculPosition((Piece)sender);
-        }
-        private void CalculPosition(Piece sender)
-        {
-            ts.Switch(sender);
-        }
-
-        private void showMoves(Piece piece, List<Case> cases)
-        {
-            if (cases.Count <= 0) return;
-            if (moves != null)
-            {
-                foreach (Image i in moves)
-                {
-                    if (i.Parent != null)
-                        ((Grid)i.Parent).Children.Remove(i);
-                }
-            }
-            moves = new List<Image>();
-
-            foreach (Case c in cases)
-            {
-                if (piece.IsAlive && CanMoveTo(piece, c))
-                {
-                    BitmapImage bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(GraphicPath.Show.move);
-                    bitmap.EndInit();
-
-                    Image img = new Image()
-                    {
-                        Source = bitmap,
-                        Opacity = 0.4
-                    };
-                    c.Children.Add(img);
-                    moves.Add(img);
-                    img.MouseDown += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
-                    {
-                        foreach (Image i in moves)
-                        {
-                            ((Grid)i.Parent).Children.Remove(i);
-                        }
-                        if (piece is Pawn && (piece.Case.y == 0 || piece.Case.y == BOARD_SIZE - 1))
-                        {
-                            Promotion prm = new Promotion(PawnPromotionCallback, piece)
-                            {
-                                Width = Width,
-                                Height = Height,
-                                Background = new SolidColorBrush()
-                                {
-                                    Color = Color.FromRgb(0, 0, 0),
-                                    Opacity = 0.5
-                                }
-
-                            };
-                            prm.generateUI();
-                            Children.Add(prm);
-                        }
-
-                        if (piece is King && (Math.Abs(piece.Case.x - c.x) == 2))
-                        {
-                            int inc = (piece.Case.Id - c.Id > 0) ? -1 : 1;
-                            Rook rk = null;
-                            for (int i = piece.Case.Id; i >= 0 && i <= BOARD_SIZE * BOARD_SIZE; i += inc)
-                            {
-                                Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
-                                if (obj != null && obj.Piece != null && obj.Piece is Rook)
-                                {
-                                    rk = (Rook)obj.Piece;
-                                    break;
-                                }
-                            }
-                            if (rk == null) return;
-                            else
-                            {
-                                rk.Case.RemovePiece();
-                                Case obj = Cases.Where(c => c.Id == piece.Case.Id + inc).FirstOrDefault();
-                                if (obj != null)
-                                {
-                                    obj.AddPiece(rk);
-                                }
-                            }
-                        }
-                        if (c.Piece != null)
-                        {
-                            Pieces.Remove(c.Piece);
-                            c.Piece.Delete();
-                        }
-                        piece.Case.RemovePiece();
-                        c.AddPiece(piece);
-                        Turn = !Turn;
-                        if (IsCheckMate(Turn))
-                        {
-                            EndGame();
-                        }
-                    };
-                }
-            }
-        }
         private void EndGame()
         {
             Background = new SolidColorBrush()
@@ -332,11 +240,10 @@ namespace chess
             };
             grid.Children.Add(lbl);
         }
-        private void PawnPromotionCallback(Piece result, Piece source)
-        {
-            result.MouseDown += Piece_MouseDown;
-            source.Case.AddPiece(result);
-        }
+
+        #endregion
+
+        #region Moves calcul
         private List<Case> CalculKing(King sender)
         {
             var mvs = new List<int>();
@@ -360,32 +267,9 @@ namespace chess
             }
 
 
-            if (!sender.AlreadyMoved)
+            if (!sender.AlreadyMoved && sender.Color == Turn)
             {
-                List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color && p.IsAlive).ToList();
-                foreach (Piece rook in rooks)
-                {
-                    int inc = (sender.Case.Id > rook.Case.Id) ? -1 : 1;
-                    bool canCastle = true;
-                    for (int i = sender.Case.Id + inc; i != rook.Case.Id; i += inc)
-                    {
-                        if (i < 0 || i > BOARD_SIZE * BOARD_SIZE) break;
-                        Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
-                        if (obj != null && obj.Piece != null)
-                        {
-                            canCastle = false;
-                            break;
-                        }
-                    }
-                    if (canCastle)
-                    {
-                        Case obj = Cases.Where(c => c.Id == sender.Case.Id + inc * 2).FirstOrDefault();
-                        if (obj != null && obj.Piece == null)
-                        {
-                            res.Add(obj);
-                        }
-                    }
-                }
+                res.AddRange(GetCastleMove(sender));
             }
 
             return res;
@@ -525,6 +409,108 @@ namespace chess
             else if (sender is King) cases = CalculKing((King)sender);
             return cases;
         }
+
+        private void CalculPosition(Piece sender)
+        {
+            ts.Switch(sender);
+        }
+        #endregion
+
+        #region Moves show
+
+        private void showMoves(Piece piece, List<Case> cases)
+        {
+            if (cases.Count <= 0) return;
+            if (moves != null)
+            {
+                foreach (Image i in moves)
+                {
+                    if (i.Parent != null)
+                        ((Grid)i.Parent).Children.Remove(i);
+                }
+            }
+            moves = new List<Image>();
+
+            foreach (Case c in cases)
+            {
+                if (piece.IsAlive && CanMoveTo(piece, c))
+                {
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(GraphicPath.Show.move);
+                    bitmap.EndInit();
+
+                    Image img = new Image()
+                    {
+                        Source = bitmap,
+                        Opacity = 0.4
+                    };
+                    c.Children.Add(img);
+                    moves.Add(img);
+                    img.MouseDown += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
+                    {
+                        foreach (Image i in moves)
+                        {
+                            ((Grid)i.Parent).Children.Remove(i);
+                        }
+                        if (piece is Pawn && (piece.Case.y == 0 || piece.Case.y == BOARD_SIZE - 1))
+                        {
+                            Promotion prm = new Promotion(PawnPromotionCallback, piece)
+                            {
+                                Width = Width,
+                                Height = Height,
+                                Background = new SolidColorBrush()
+                                {
+                                    Color = Color.FromRgb(0, 0, 0),
+                                    Opacity = 0.5
+                                }
+
+                            };
+                            prm.generateUI();
+                            Children.Add(prm);
+                        }
+
+                        if (piece is King && (Math.Abs(piece.Case.x - c.x) == 2))
+                        {
+                            int inc = (piece.Case.Id - c.Id > 0) ? -1 : 1;
+                            Rook rk = null;
+                            for (int i = piece.Case.Id; i >= 0 && i <= BOARD_SIZE * BOARD_SIZE; i += inc)
+                            {
+                                Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
+                                if (obj != null && obj.Piece != null && obj.Piece is Rook)
+                                {
+                                    rk = (Rook)obj.Piece;
+                                    break;
+                                }
+                            }
+                            if (rk == null) return;
+                            else
+                            {
+                                rk.Case.RemovePiece();
+                                Case obj = Cases.Where(c => c.Id == piece.Case.Id + inc).FirstOrDefault();
+                                if (obj != null)
+                                {
+                                    obj.AddPiece(rk);
+                                }
+                            }
+                        }
+
+                        if (c.Piece != null)
+                        {
+                            Pieces.Remove(c.Piece);
+                            c.Piece.Delete();
+                        }
+                        piece.Case.RemovePiece();
+                        c.AddPiece(piece);
+                        Turn = !Turn;
+                        if (IsCheckMate(Turn))
+                        {
+                            EndGame();
+                        }
+                    };
+                }
+            }
+        }
         private void ShowKing(King sender)
         {
             List<Case> res = CalculKing(sender);
@@ -555,34 +541,102 @@ namespace chess
             List<Case> res = CalculPawn(sender);
             showMoves(sender, res);
         }
+
+        #endregion
+
+        #region Simulation
         private bool CanMoveTo(Piece piece, Case GoTo)
         {
             List<Piece> smPieces = Clone.CloneList<Piece>(Pieces).Where(p => p != null && p.IsAlive).ToList();
-            List<Piece> enemy = smPieces.Where(p => p.Color != piece.Color).ToList();
+            List<Piece> smenemy = smPieces.Where(p => p.Color != piece.Color).ToList();
             King smKing = (King)smPieces.Where(p => p.Color == piece.Color && p is King).FirstOrDefault();
-
             Piece smPiece = smPieces.Where(p => p.Id == piece.Id).FirstOrDefault();
-            if (smPiece == null || smKing == null)
-            {
-                return false;
-            }
-            bool r;
-            smPiece.Case.simulation(null);
-            smPiece.simulation(GoTo);
-            if(GoTo.Piece != null)
-            {
-                enemy.Remove(enemy.Where(p => p.Id == GoTo.Piece.Id).FirstOrDefault());
-            }
-            GoTo.simulation(smPiece);
-            r = !KingIsInCheck(smKing, enemy);
+            bool r = false;
+            if (smPiece == null || smKing == null) return false; 
 
-            smPiece.Simulation.simulation(smKing);
-            smPiece.simulation(smPiece.Simulation);
-            GoTo.simulation(GoTo.Simulation);
+            if (GoTo.Piece != null)
+            {
+                smenemy.Remove(smenemy.Where(p => p.Id == GoTo.Piece.Id).FirstOrDefault());
+            }
+            smPiece.Case.SimulateNewPiece(null);
+            smPiece.SimulateMove(GoTo);
 
+            r = !KingIsInCheck(smKing, smenemy);
+
+            smPiece.returnToRealCase();
+            smPiece.Case.returnToRealPiece();
 
             return r;
         }
+
+        #endregion
+
+        #region Rules
+        private List<Case> GetCastleMove(King sender)
+        {
+            List<Case> res = new List<Case>();
+            List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color && p.IsAlive).ToList();
+            List<Piece> enemys = Pieces.Where(p => p.Color != sender.Color && p.IsAlive).ToList();
+
+            foreach (Piece rook in rooks)
+            {
+                int inc = (sender.Case.Id > rook.Case.Id) ? -1 : 1;
+                bool canCastle = true;
+                for (int i = sender.Case.Id + inc; i != rook.Case.Id; i += inc)
+                {
+                    if (i < 0 || i > BOARD_SIZE * BOARD_SIZE) break;
+                    Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
+                    if (obj != null)
+                    {
+                        if (obj.Piece != null && obj.Piece != rook)
+                        {
+                            canCastle = false;
+                            break;
+                        }
+                        else
+                        {
+                            bool canmv = false;
+                            foreach (Piece enemy in enemys)
+                            {
+                                List<Case> cases = CalculMoves(enemy);
+
+                                if (cases.Contains(obj))
+                                {
+                                    canmv = true;
+                                    break;
+                                }
+                                else
+                                {
+                                    int iddd = 0;
+                                }
+                            }
+                            if (canmv)
+                            {
+                                canCastle = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (canCastle)
+                {
+                    Case obj = Cases.Where(c => c.Id == sender.Case.Id + inc * 2).FirstOrDefault();
+                    if (obj != null && obj.Piece == null)
+                    {
+                        res.Add(obj);
+                    }
+                }
+            }
+            return res;
+        }
+        private void PawnPromotionCallback(Piece result, Piece source)
+        {
+            result.MouseDown += Piece_MouseDown;
+            source.Case.AddPiece(result);
+        }
+        
+
+
         private bool KingIsInCheck(King king, List<Piece> enemy)
         {
             foreach (Piece piece in enemy)
@@ -617,13 +671,27 @@ namespace chess
             {
                 foreach(Case cs in CalculMoves(pc))
                 {
-                    if (CanMoveTo(pc, cs)) return false;
+                    if (CanMoveTo(pc, cs)) 
+                        return false;
                 }
             }
 
             return true;
         }
+
+        #endregion
+
+        #region Events
+        private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if(((Piece)sender).Color == Turn)
+                CalculPosition((Piece)sender);
+        }
+        #endregion
+
+        #endregion
     }
+
 
     public class TypeSwitch
     {
