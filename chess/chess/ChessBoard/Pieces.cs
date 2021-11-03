@@ -14,6 +14,7 @@ namespace chess
         public int Id { get; protected set; }
         public static int count { get; protected set; }
         public bool Color { get; protected set; }
+        public bool IsAlive { get; protected set; } = true;
         public bool AlreadyMoved
         {
             get
@@ -22,7 +23,7 @@ namespace chess
             }
         }
         public Case Case { get; protected set; }
-        public Case Simulation { get; set; }
+        public Case realCase { get; set; }
         public List<Case> Moved { get; set; }
 
         protected int moveCount = 0;
@@ -31,11 +32,6 @@ namespace chess
             if (Parent != null) ((Grid)Parent).Children.Clear();
             this.Case = @case;
             moveCount++;
-        }
-        public void simulation(Case @case)
-        {
-            Simulation = Case;
-            Case = @case;
         }
         public Piece(bool color) : base()
         {
@@ -52,8 +48,26 @@ namespace chess
 
             Source = bitmap;
         }
-
+        public void Delete()
+        {
+            Case = null;
+            realCase = null;
+            IsAlive = false;
+        }
         public abstract object Clone();
+
+
+        public void SimulateMove(Case @case)
+        {
+            realCase = Case;
+            Case = @case;
+        }
+
+        public void returnToRealCase()
+        {
+            Case = realCase;
+            realCase = null;
+        }
     }
 
     public class Pawn : Piece
@@ -68,11 +82,10 @@ namespace chess
             Pawn r = new Pawn(Color)
             {
                 Case = this.Case,
-                Simulation = this.Case,
+                realCase = this.realCase,
                 moveCount = this.moveCount,
                 Id = this.Id
             };
-            Case.Simulation = r;
             return r;
         }
     }
@@ -89,10 +102,9 @@ namespace chess
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
-                Simulation = this.Case,
+                realCase = this.realCase,
                 Id = this.Id
             };
-            Case.Simulation = r;
             return r;
         }
     }
@@ -109,10 +121,9 @@ namespace chess
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
-                Simulation = this.Case,
+                realCase = this.realCase,
                 Id = this.Id
             };
-            Case.Simulation = r;
             return r;
         }
     }
@@ -129,10 +140,9 @@ namespace chess
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
-                Simulation = this.Case,
+                realCase = this.realCase,
                 Id = this.Id
             };
-            Case.Simulation = r;
             return r;
         }
     }
@@ -148,11 +158,10 @@ namespace chess
             Queen r = new Queen(Color)
             {
                 Case = this.Case,
-                Simulation = this.Case,
+                realCase = this.Case,
                 moveCount = this.moveCount,
                 Id = this.Id
             };
-            Case.Simulation = r;
             return r;
         }
     }
@@ -168,11 +177,10 @@ namespace chess
             King r = new King(Color)
             {
                 Case = this.Case,
-                Simulation = this.Case,
+                realCase = this.Case,
                 moveCount = this.moveCount,
                 Id = this.Id
             };
-            Case.Simulation = r;
             return r;
         }
     }
