@@ -218,7 +218,7 @@ namespace chess
             pc.MouseDown += Piece_MouseDown;
             return pc;
         }
-        private void EndGame()
+        private void EndGame(string message)
         {
             Background = new SolidColorBrush()
             {
@@ -232,7 +232,7 @@ namespace chess
             Children.Add(grid);
             Label lbl = new Label()
             {
-                Content = "GAME OVER",
+                Content = message,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 0),
@@ -503,14 +503,19 @@ namespace chess
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
                         Turn = !Turn;
+                        if (!AsMove(Turn))
+                        {
+                            EndGame("Stalemate");
+                        }
                         if (IsCheckMate(Turn))
                         {
-                            EndGame();
+                            EndGame($"{!Turn} WIN");
                         }
                     };
                 }
             }
         }
+
         private void ShowKing(King sender)
         {
             List<Case> res = CalculKing(sender);
@@ -552,10 +557,13 @@ namespace chess
             King smKing = (King)smPieces.Where(p => p.Color == piece.Color && p is King).FirstOrDefault();
             Piece smPiece = smPieces.Where(p => p.Id == piece.Id).FirstOrDefault();
             bool r = false;
+            bool kill = false;
             if (smPiece == null || smKing == null) return false; 
 
             if (GoTo.Piece != null)
             {
+                kill = true;
+                GoTo.SimulateNewPiece(piece);
                 smenemy.Remove(smenemy.Where(p => p.Id == GoTo.Piece.Id).FirstOrDefault());
             }
             smPiece.Case.SimulateNewPiece(null);
@@ -563,6 +571,7 @@ namespace chess
 
             r = !KingIsInCheck(smKing, smenemy);
 
+            if (kill) GoTo.returnToRealPiece();
             smPiece.returnToRealCase();
             smPiece.Case.returnToRealPiece();
 
@@ -634,8 +643,6 @@ namespace chess
             result.MouseDown += Piece_MouseDown;
             source.Case.AddPiece(result);
         }
-        
-
 
         private bool KingIsInCheck(King king, List<Piece> enemy)
         {
@@ -650,8 +657,9 @@ namespace chess
         private bool CanKill(Piece killer, Piece victim)
         {
             List<Case> cases = CalculMoves(killer);
+            List<int> csid = cases.Select(c => c.Id).ToList();
 
-            if (cases != null && cases.Contains(victim.Case))
+            if (cases != null && csid.Contains(victim.Case.Id))
                 return true;
             return false;
 
@@ -679,6 +687,19 @@ namespace chess
             return true;
         }
 
+        private bool AsMove(bool turn)
+        {
+            foreach(Piece pc in Pieces.Where(pc => pc.Color == turn))
+            {
+                List<Case> cs = CalculMoves(pc).ToList();
+                foreach(Case c in cs)
+                {
+                    if (CanMoveTo(pc, c)) return true;
+                }
+            }
+
+            return false;
+        }
         #endregion
 
         #region Events
