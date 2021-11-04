@@ -758,8 +758,19 @@ namespace chess
         #region Events
         private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if(((Piece)sender).Color == Turn)
+            if (((Piece)sender).Color == Turn)
+            {
+                if (moves != null)
+                {
+                    foreach (Image i in moves)
+                    {
+                        if (i.Parent != null)
+                            ((Grid)i.Parent).Children.Remove(i);
+                    }
+                }
                 CalculPosition((Piece)sender);
+
+            }
         }
         #endregion
 
