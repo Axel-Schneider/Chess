@@ -19,6 +19,7 @@ namespace chess
     {
         #region Events
         public event EventHandler onTurnChanged;
+        public event EventHandler onGameEnded;
 
         #endregion
 
@@ -247,6 +248,7 @@ namespace chess
         }
         private void EndGame(string message)
         {
+            onGameEnded.Invoke(this, null);
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Background = new SolidColorBrush()

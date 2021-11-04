@@ -50,25 +50,33 @@ namespace chess
                 Width = BoardGrid.Width - 20,
             };
             board.onTurnChanged += Board_onTurnChanged;
+            board.onGameEnded += Board_onGameEnded;
             BoardGrid.Children.Add(board);
             board.RegenerateBoard();
-            dark = new ChessTimer()
+
+            TimerDark = new ChessTimer()
             {
                 Header = "Dark",
             };
-            dark.onTimerEnded += Dark_onTimerEnded;
-            light = new ChessTimer()
+            TimerDark.onTimerEnded += Dark_onTimerEnded;
+            TimerLight = new ChessTimer()
             {
                 Header = "Light",
             }; 
-            light.onTimerEnded += Light_onTimerEnded;
+            TimerLight.onTimerEnded += Light_onTimerEnded;
 
             DarkGrid.Background = new ImageBrush(bitmap);
-            DarkGrid.Children.Add(dark);
+            DarkGrid.Children.Add(TimerDark);
             LightGrid.Background = new ImageBrush(bitmap);
-            LightGrid.Children.Add(light);
+            LightGrid.Children.Add(TimerLight);
 
-            light.Start();
+            TimerLight.Start();
+        }
+
+        private void Board_onGameEnded(object? sender, EventArgs e)
+        {
+            TimerLight.Stop();
+            TimerDark.Stop();
         }
 
         private void Light_onTimerEnded(object? sender, EventArgs e)
@@ -81,19 +89,19 @@ namespace chess
             board.Nulle(NullReason.TIMER);
         }
 
-        ChessTimer dark;
-        ChessTimer light;
+        ChessTimer TimerDark;
+        ChessTimer TimerLight;
         private void Board_onTurnChanged(object? sender, EventArgs e)
         {
             if (((ChangeTurn)e).Turn)
             {
-                dark.Pause();
-                light.Start();
+                TimerDark.Pause();
+                TimerLight.Start();
             }
             else
             {
-                light.Pause();
-                dark.Start();
+                TimerLight.Pause();
+                TimerDark.Start();
             }
         }
     }
