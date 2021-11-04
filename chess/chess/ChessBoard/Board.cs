@@ -516,7 +516,10 @@ namespace chess
                         Turn = !Turn;
                         if (IsCheckMate(Turn))
                         {
-                            EndGame($"{!Turn} WIN");
+                            EndGame((!Turn)
+                                ? $"LIGHT WIN"
+                                : $"DARK WIN"
+                                );
                         }
                         else if (stroke50())
                         {
@@ -533,13 +536,6 @@ namespace chess
                     };
                 }
             }
-        }
-
-        private void move(Piece piece, Case to, bool wasCheck, bool kill)
-        {
-            LogMove(piece, piece.Case, to, wasCheck, kill);
-            piece.Case.RemovePiece();
-            to.AddPiece(piece);
         }
         private void ShowKing(King sender)
         {
@@ -579,26 +575,27 @@ namespace chess
         {
             List<Piece> smPieces = Clone.CloneList<Piece>(Pieces).Where(p => p != null && p.IsAlive).ToList();
             List<Piece> smenemy = smPieces.Where(p => p.Color != piece.Color).ToList();
-            King smKing = (King)smPieces.Where(p => p.Color == piece.Color && p is King).FirstOrDefault();
-            Piece smPiece = smPieces.Where(p => p.Id == piece.Id).FirstOrDefault();
+            King smKing = (piece is King)
+                ? (King)piece
+                : (King)smPieces.Where(p => p.Color == piece.Color && p is King).FirstOrDefault();
             bool r = false;
             bool kill = false;
-            if (smPiece == null || smKing == null) return false; 
+            if (piece == null || smKing == null) return false; 
 
             if (GoTo.Piece != null)
             {
                 kill = true;
-                GoTo.SimulateNewPiece(piece);
                 smenemy.Remove(smenemy.Where(p => p.Id == GoTo.Piece.Id).FirstOrDefault());
             }
-            smPiece.Case.SimulateNewPiece(null);
-            smPiece.SimulateMove(GoTo);
+            GoTo.SimulateNewPiece(piece);
+            piece.Case.SimulateNewPiece(null);
+            piece.SimulateMove(GoTo);
 
             r = !KingIsInCheck(smKing, smenemy);
 
-            if (kill) GoTo.returnToRealPiece();
-            smPiece.returnToRealCase();
-            smPiece.Case.returnToRealPiece();
+            GoTo.returnToRealPiece();
+            piece.returnToRealCase();
+            piece.Case.returnToRealPiece();
 
             return r;
         }
@@ -704,8 +701,7 @@ namespace chess
             {
                 foreach(Case cs in CalculMoves(pc))
                 {
-                    if (CanMoveTo(pc, cs)) 
-                        return false;
+                    if (CanMoveTo(pc, cs)) return false;
                 }
             }
 
