@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:chess"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="Chess" Height="560" Width="855" Icon="/Icon.png">
+        Title="Chess" Height="602" Width="855" Icon="/Icon.png">
     <Window.FocusVisualStyle>
         <Style/>
     </Window.FocusVisualStyle>
@@ -17,5 +17,6 @@
         </Grid>
         <Grid x:Name="LightGrid" HorizontalAlignment="Left" Height="262" Margin="535,268,0,0" VerticalAlignment="Top" Width="295">
         </Grid>
+        <Label x:Name="lblHistory" Content="" HorizontalAlignment="Left" Margin="10,535,0,0" VerticalAlignment="Top" Height="41" Width="820" Foreground="White"/>
     </Grid>
 </Window>

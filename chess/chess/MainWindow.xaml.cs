@@ -24,7 +24,6 @@ namespace chess
         public MainWindow()
         {
             InitializeComponent();
-            Height = BoardGrid.Height + 60;
 
             
 
@@ -93,16 +92,23 @@ namespace chess
         ChessTimer TimerLight;
         private void Board_onTurnChanged(object? sender, EventArgs e)
         {
+            string move = "";
             if (((ChangeTurn)e).Turn)
             {
                 TimerDark.Pause();
                 TimerLight.Start();
+                MoveLog cs = ((Board)sender).LastMovesDark.Last();
+                move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
             }
             else
             {
                 TimerLight.Pause();
                 TimerDark.Start();
+                MoveLog cs = ((Board)sender).LastMovesLight.Last();
+                move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
             }
+
+            lblHistory.Content = move + " ; " + lblHistory.Content;
         }
     }
 }

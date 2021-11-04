@@ -47,14 +47,10 @@ namespace chess
                 Timer.Stop();
                 onTimerEnded?.Invoke(this, null);
             }
-            try
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
                     textBlock.Text = Time.ToString(@"hh\:mm\:ss");
-                });
-            }
-            catch { }
+            });
         }
         public void Start()
         {
