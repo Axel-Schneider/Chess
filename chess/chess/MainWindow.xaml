@@ -10,10 +10,10 @@
         <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="520" Margin="10,10,0,0" VerticalAlignment="Top" Width="520" Background="#FFEAEAEA">
         </Grid>
         <Grid HorizontalAlignment="Left" Height="253" Margin="535,10,0,0" VerticalAlignment="Top" Width="295" Background="Black">
-            <Label Content="Dev en cours" HorizontalAlignment="Center" Margin="0,109,0,0" VerticalAlignment="Top" Width="193" Foreground="White"/>
+            <Label x:Name="lblDark" Content="Dev en cours" HorizontalAlignment="Center" Margin="0,109,0,0" VerticalAlignment="Top" Width="193" Foreground="White"/>
         </Grid>
         <Grid HorizontalAlignment="Left" Height="262" Margin="535,268,0,0" VerticalAlignment="Top" Width="295" Background="Black">
-            <Label Content="Dev en cours" HorizontalAlignment="Center" Margin="0,109,0,0" VerticalAlignment="Top" Width="193" Foreground="White"/>
+            <Label x:Name="lblLight" Content="Dev en cours" HorizontalAlignment="Center" Margin="0,109,0,0" VerticalAlignment="Top" Width="193" Foreground="White"/>
         </Grid>
     </Grid>
 </Window>

@@ -35,6 +35,8 @@ namespace chess
 
         public List<Case> Cases { get; private set; }
         public List<Piece> Pieces { get; private set; }
+        public List<MoveLog> LastMovesLight { get; private set; }
+        public List<MoveLog> LastMovesDark { get; private set; }
         #endregion
 
         #region Object
@@ -54,6 +56,8 @@ namespace chess
                 .Case((Rook x) => ShowRook(x))
                 .Case((Queen x) => ShowQueen(x))
                 .Case((King x) => ShowKing(x));
+            LastMovesLight = new();
+            LastMovesDark = new();
         }
         #endregion
          
@@ -449,6 +453,11 @@ namespace chess
                     moves.Add(img);
                     img.MouseDown += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
                     {
+                        King king = (King)Pieces.Where(pc => pc is King && pc.Color == Turn).FirstOrDefault();
+                        List<Piece> enemy = Pieces.Where(pc => pc.Color != Turn).ToList();
+
+                        bool isCheck = KingIsInCheck(king, enemy);
+
                         foreach (Image i in moves)
                         {
                             ((Grid)i.Parent).Children.Remove(i);
@@ -494,28 +503,44 @@ namespace chess
                                 }
                             }
                         }
-
+                        bool kill = false;
                         if (c.Piece != null)
                         {
+                            kill = true;
                             Pieces.Remove(c.Piece);
                             c.Piece.Delete();
                         }
+                        LogMove(piece, piece.Case, c, isCheck, kill);
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
                         Turn = !Turn;
-                        if (!AsMove(Turn))
-                        {
-                            EndGame("Stalemate");
-                        }
                         if (IsCheckMate(Turn))
                         {
                             EndGame($"{!Turn} WIN");
+                        }
+                        else if (stroke50())
+                        {
+                            EndGame("50 stroke rule");
+                        }
+                        else if (!AsMove(Turn))
+                        {
+                            EndGame("Stalemate");
+                        }
+                        else if (isCheck && Perpetual(!Turn))
+                        {
+                            EndGame("Three times repetition");
                         }
                     };
                 }
             }
         }
 
+        private void move(Piece piece, Case to, bool wasCheck, bool kill)
+        {
+            LogMove(piece, piece.Case, to, wasCheck, kill);
+            piece.Case.RemovePiece();
+            to.AddPiece(piece);
+        }
         private void ShowKing(King sender)
         {
             List<Case> res = CalculKing(sender);
@@ -700,6 +725,38 @@ namespace chess
 
             return false;
         }
+
+        private bool Perpetual(bool color)
+        {
+            List<MoveLog> log = color ? LastMovesLight : LastMovesDark;
+            if (log.Count < 4) return false;
+            for(int i = 0; i < 3; i++)
+            {
+                if (!MoveSimilar(log[log.Count - i - 1], log[log.Count - i - 2]))
+                    return false;
+            }
+
+            return true;
+        }
+        private bool MoveSimilar(MoveLog first, MoveLog second)
+        {
+            if (first.Piece.Id != second.Piece.Id) return false;
+            if (first.To.Id == second.From.Id && first.From.Id == second.To.Id) return true;
+            return false;
+        }
+        private bool stroke50()
+        {
+            if (LastMovesDark.Count + LastMovesLight.Count < 50) return false;
+            List<MoveLog> log = LastMovesLight.Concat(LastMovesDark).ToList();
+            log = log.Where(mv => mv.Id > log.Count - 50).ToList();
+            foreach(MoveLog mv in log)
+            {
+                if (mv.Kill) return false;
+                if (mv.Piece is Pawn) return false;
+            }
+            return true;
+
+        }
         #endregion
 
         #region Events
@@ -707,6 +764,22 @@ namespace chess
         {
             if(((Piece)sender).Color == Turn)
                 CalculPosition((Piece)sender);
+        }
+        #endregion
+
+        #region Log
+        private void LogMove(Piece piece, Case from, Case to, bool wasCheck, bool kill)
+        {
+            MoveLog mv = new(piece, from, to, wasCheck, kill);
+
+            if (piece.Color)
+            {
+                LastMovesLight.Add(mv);
+            }
+            else
+            {
+                LastMovesDark.Add(mv);
+            }
         }
         #endregion
 
