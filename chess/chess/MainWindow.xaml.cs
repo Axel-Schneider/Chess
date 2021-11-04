@@ -26,6 +26,8 @@ namespace chess
             InitializeComponent();
             Height = BoardGrid.Height + 60;
 
+            
+
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = new Uri(GraphicPath.Show.Background);
