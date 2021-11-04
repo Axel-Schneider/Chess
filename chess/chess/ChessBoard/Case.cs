@@ -53,7 +53,7 @@ namespace chess
         }
         public string GetCaseName()
         {
-            return convertIntToString(x) + y.ToString();
+            return convertIntToString(x) + (y+1).ToString();
         }
 
         private static string[] alphabetArray = { string.Empty, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
