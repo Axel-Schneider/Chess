@@ -10,8 +10,18 @@ using System.Windows.Media.Imaging;
 
 namespace chess
 {
+    public enum NullReason
+    {
+        ACCORD,
+        TIMER,
+    }
     public class Board : Grid
     {
+        #region Events
+        public event EventHandler onTurnChanged;
+
+        #endregion
+
         #region Constantes
         public const int BOARD_SIZE = 8;
         public const int BOARD_BORDER = 2;
@@ -65,6 +75,19 @@ namespace chess
         public void RegenerateBoard()
         {
             GenerateBoard();
+        }
+
+        public void Nulle(NullReason reason)
+        {
+            switch (reason)
+            {
+                case NullReason.ACCORD:
+                    EndGame("ACCORD");
+                    break;
+                case NullReason.TIMER:
+                    EndGame("NO MORE TIME");
+                    break;
+            }
         }
         #endregion
 
@@ -224,25 +247,29 @@ namespace chess
         }
         private void EndGame(string message)
         {
-            Background = new SolidColorBrush()
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Color = Color.FromRgb(0, 0, 0),
-                Opacity = 0.2
-            };
-            Grid grid = new Grid()
-            {
-                Background = Background
-            };
-            Children.Add(grid);
-            Label lbl = new Label()
-            {
-                Content = message,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 0, 0, 0),
-                FontSize = 36
-            };
-            grid.Children.Add(lbl);
+                Background = new SolidColorBrush()
+                {
+                    Color = Color.FromRgb(0, 0, 0),
+                    Opacity = 0.2
+                };
+                Grid grid = new Grid()
+                {
+                    Background = Background
+                };
+                Children.Add(grid);
+                Label lbl = new Label()
+                {
+                    Content = message,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, 0),
+                    FontSize = 36
+                };
+                grid.Children.Add(lbl);
+
+            });
         }
 
         #endregion
@@ -513,7 +540,7 @@ namespace chess
                         LogMove(piece, piece.Case, c, isCheck, kill);
                         piece.Case.RemovePiece();
                         c.AddPiece(piece);
-                        Turn = !Turn;
+                        ChangeTurn();
                         if (IsCheckMate(Turn))
                         {
                             EndGame((!Turn)
@@ -772,6 +799,12 @@ namespace chess
 
             }
         }
+
+        private void ChangeTurn()
+        {
+            Turn = !Turn;
+            onTurnChanged.Invoke(this, new ChangeTurn(Turn));
+        }
         #endregion
 
         #region Log
@@ -805,6 +838,15 @@ namespace chess
         public static List<T> CloneList<T>(this List<T> listToClone) where T : ICloneable
         {
             return listToClone.Select(item => (T)item.Clone()).ToList();
+        }
+    }
+
+    public class ChangeTurn : EventArgs
+    {
+        public bool Turn { get; private set; }
+        public ChangeTurn(bool turn) : base()
+        {
+            Turn = turn;
         }
     }
 }

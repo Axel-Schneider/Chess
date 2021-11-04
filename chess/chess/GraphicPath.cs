@@ -142,6 +142,7 @@ namespace chess
             public static string ShowPath => ImagePath + @"Show\";
             public static string move => ShowPath + @"move.png";
             public static string Background => ShowPath + @"Background.jpg";
+            public static string BackgroundObject => ShowPath + @"BackgroundObject.jpg";
         }
         public TwoPath Two => new TwoPath("", "");
 
