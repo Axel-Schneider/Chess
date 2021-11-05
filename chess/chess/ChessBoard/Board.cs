@@ -491,7 +491,7 @@ namespace chess
                         {
                             ((Grid)i.Parent).Children.Remove(i);
                         }
-                        if (piece is Pawn && (piece.Case.y == 0 || piece.Case.y == BOARD_SIZE - 1))
+                        if (piece is Pawn && (c.y == 0 || c.y == BOARD_SIZE - 1))
                         {
                             Promotion prm = new Promotion(PawnPromotionCallback, piece)
                             {
@@ -692,6 +692,8 @@ namespace chess
         private void PawnPromotionCallback(Piece result, Piece source)
         {
             result.MouseDown += Piece_MouseDown;
+            Pieces.Remove(source);
+            Pieces.Add(result);
             source.Case.AddPiece(result);
         }
 
