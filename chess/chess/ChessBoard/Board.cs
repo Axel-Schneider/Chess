@@ -561,6 +561,9 @@ namespace chess
                         else if (isCheck && Perpetual(!Turn))
                         {
                             EndGame("Three times repetition");
+                        }else if (mater())
+                        {
+                            EndGame("Mater");
                         }
                     };
                 }
@@ -784,6 +787,40 @@ namespace chess
             return true;
 
         }
+        private bool mater()
+        {
+            bool res = false;
+            List<Piece> light = Pieces.Where(p => p.Color == true && p is not King).ToList();
+            List<Piece> dark = Pieces.Where(p => p.Color == false && p is not King).ToList();
+
+            if (light.Count > 1 || dark.Count > 1) return false;
+
+            if(testMater(light, dark) || testMater(dark, light))
+            {
+                return true;
+            }
+
+            return false;
+        }
+        private bool testMater(List<Piece> player1, List<Piece> player2)
+        {
+            if (player1.Count > 1 || player2.Count > 1) return false;
+
+            if (player1.Count == 0)
+            {
+                if (player2.Count == 0) return true;
+                Piece last = player2.FirstOrDefault();
+                foreach(string s in Enum.GetNames(typeof(MaterPieces))){
+                    string t = last.GetType().ToString();
+                    if ("chess." + s == last.GetType().ToString())
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        }
         #endregion
 
         #region Events
@@ -852,5 +889,11 @@ namespace chess
         {
             Turn = turn;
         }
+    }
+
+    public enum MaterPieces
+    {
+        Knight,
+        Bishop,
     }
 }
