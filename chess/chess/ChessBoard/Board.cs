@@ -148,8 +148,8 @@ namespace chess
                     i = (BOARD_SIZE) * y;
                     continue;
                 }
-                Piece black = null;
-                Piece white = null;
+                UIPiece black = null;
+                UIPiece white = null;
                 Case cblack = null;
                 Case cwhite = null;
                 int wx, wy;
@@ -157,31 +157,31 @@ namespace chess
                 switch (c)
                 {
                     case CHAR_ROOK:
-                        black = new Rook(false);
-                        white = new Rook(true);
+                        black = new UIRook(false);
+                        white = new UIRook(true);
                         break;
                     case CHAR_KNIGHT:
-                        black = new Knight(false);
-                        white = new Knight(true);
+                        black = new UIKnight(false);
+                        white = new UIKnight(true);
                         break;
                     case CHAR_BISHOP:
-                        black = new Bishop(false);
-                        white = new Bishop(true);
+                        black = new UIBishop(false);
+                        white = new UIBishop(true);
                         break;
                     case CHAR_QUEEN:
-                        black = new Queen(false);
-                        white = new Queen(true);
+                        black = new UIQueen(false);
+                        white = new UIQueen(true);
                         break;
                     case CHAR_KING:
-                        black = new King(false);
-                        white = new King(true);
+                        black = new UIKing(false);
+                        white = new UIKing(true);
                         break;
                     case CHAR_EMPTY:
                         break;
                     case CHAR_PAWN:
                     default:
-                        black = new Pawn(false);
-                        white = new Pawn(true);
+                        black = new UIPawn(false);
+                        white = new UIPawn(true);
                         break;
                 }
                 bx = i;
@@ -201,10 +201,10 @@ namespace chess
 
 
         }
-        private void addPiece(Piece piece, Case @case)
+        private void addPiece(UIPiece piece, Case @case)
         {
-            Pieces.Add(piece);
-            @case.AddPiece(piece);
+            Pieces.Add(piece.PieceChess);
+            @case.AddPiece(piece.PieceChess);
             piece.MouseDown += Piece_MouseDown;
         }
         private Brush GetBrush(int id)
@@ -215,37 +215,6 @@ namespace chess
             bitmap.EndInit();
 
             return new ImageBrush(bitmap);
-        }
-        private Piece GetRandomPiece()
-        {
-            Random rdm = new Random();
-            Piece pc;
-            switch (rdm.Next(6))
-            {
-                case 0:
-                    pc = new Pawn(rdm.Next() % 2 == 0);
-                    break;
-                case 1:
-                    pc = new Bishop(rdm.Next() % 2 == 0);
-                    break;
-                case 2:
-                    pc = new Knight(rdm.Next() % 2 == 0);
-                    break;
-                case 3:
-                    pc = new Rook(rdm.Next() % 2 == 0);
-                    break;
-                case 4:
-                    pc = new Queen(rdm.Next() % 2 == 0);
-                    break;
-                case 5:
-                    pc = new King(rdm.Next() % 2 == 0);
-                    break;
-                default:
-                    pc = new Pawn(rdm.Next() % 2 == 0);
-                    break;
-            }
-            pc.MouseDown += Piece_MouseDown;
-            return pc;
         }
         private void EndGame(string message)
         {
@@ -693,12 +662,12 @@ namespace chess
             }
             return res;
         }
-        private void PawnPromotionCallback(Piece result, Piece source)
+        private void PawnPromotionCallback(UIPiece result, Piece source)
         {
             result.MouseDown += Piece_MouseDown;
             Pieces.Remove(source);
-            Pieces.Add(result);
-            source.Case.AddPiece(result);
+            Pieces.Add(result.PieceChess);
+            source.Case.AddPiece(result.PieceChess);
         }
 
         private bool KingIsInCheck(King king, List<Piece> enemy)
@@ -827,7 +796,7 @@ namespace chess
         #region Events
         private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (((Piece)sender).Color == Turn)
+            if (((UIPiece)sender).PieceChess.Color == Turn)
             {
                 if (moves != null)
                 {
@@ -837,7 +806,7 @@ namespace chess
                             ((Grid)i.Parent).Children.Remove(i);
                     }
                 }
-                CalculPosition((Piece)sender);
+                CalculPosition(((UIPiece)sender).PieceChess);
 
             }
         }

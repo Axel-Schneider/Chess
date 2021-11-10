@@ -37,7 +37,7 @@ namespace chess.ChessBoardGUI
             Children.Clear();
             if(CaseChess.Piece != null)
             {
-                Children.Add(CaseChess.Piece);
+                Children.Add(CaseChess.Piece.UIPiece);
             }
         }
     }
