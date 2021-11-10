@@ -1,4 +1,5 @@
-﻿using System;
+﻿using chess.ChessBoardGUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +21,7 @@ namespace chess
     /// </summary>
     public partial class MainWindow : Window
     {
-        Board board;
+        UIBoard board;
         public MainWindow()
         {
             InitializeComponent();
@@ -39,7 +40,7 @@ namespace chess
             bitmap.EndInit();
             BoardGrid.Background = new ImageBrush(bitmap);
 
-            board = new Board()
+            board = new UIBoard()
             //board = new Board("r   k  r/pppppppp")
             //board = new Board("    k/r      r")
             //board = new Board("rnbqk  r/ppp  ppp/b  p")
@@ -51,7 +52,7 @@ namespace chess
             board.onTurnChanged += Board_onTurnChanged;
             board.onGameEnded += Board_onGameEnded;
             BoardGrid.Children.Add(board);
-            board.RegenerateBoard();
+            board.GenerateBoard();
 
             TimerDark = new ChessTimer()
             {
