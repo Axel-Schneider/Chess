@@ -1,4 +1,5 @@
-﻿using System;
+﻿using chess.ChessBoardGUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace chess
 {
-    public abstract class Piece : Image, ICloneable
+    public abstract class Piece : ICloneable
     {
         public int Id { get; protected set; }
         public static int count { get; protected set; }
@@ -25,28 +26,20 @@ namespace chess
         public Case Case { get; protected set; }
         public Case realCase { get; set; }
         public List<Case> Moved { get; set; }
+        public UIPiece UIPiece { get; protected set; }
 
         protected int moveCount = 0;
         public void move(Case @case)
         {
-            if (Parent != null) ((Grid)Parent).Children.Clear();
             this.Case = @case;
             moveCount++;
         }
-        public Piece(bool color) : base()
+        public Piece(bool color, UIPiece uiPiece) : base()
         {
             Color = color;
             Id = count;
             count++;
-        }
-        protected void setImage(string ImageUri)
-        {
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(ImageUri);
-            bitmap.EndInit();
-
-            Source = bitmap;
+            UIPiece = uiPiece;
         }
         public void Delete()
         {
@@ -72,14 +65,11 @@ namespace chess
 
     public class Pawn : Piece
     {
-        public Pawn(bool color) : base(color)
-        {
-            setImage(GraphicPath.Pieces.Pawn(color));
-        }
+        public Pawn(bool color, UIPawn uIPawn) : base(color, uIPawn) { }
 
         public override object Clone()
         {
-            Pawn r = new Pawn(Color)
+            Pawn r = new Pawn(Color, null)
             {
                 Case = this.Case,
                 realCase = this.realCase,
@@ -92,13 +82,10 @@ namespace chess
 
     public class Bishop : Piece
     {
-        public Bishop(bool color) : base(color)
-        {
-            setImage(GraphicPath.Pieces.Bishop(color));
-        }
+        public Bishop(bool color, UIBishop uIBishop) : base(color, uIBishop) { }
         public override object Clone()
         {
-            Bishop r = new Bishop(Color)
+            Bishop r = new Bishop(Color, null)
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
@@ -111,13 +98,10 @@ namespace chess
 
     public class Knight : Piece
     {
-        public Knight(bool color) : base(color)
-        {
-            setImage(GraphicPath.Pieces.Knight(color));
-        }
+        public Knight(bool color, UIKnight uIKnight) : base(color, uIKnight) { }
         public override object Clone()
         {
-            Knight r = new Knight(Color)
+            Knight r = new Knight(Color, null)
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
@@ -130,13 +114,10 @@ namespace chess
 
     public class Rook : Piece
     {
-        public Rook(bool color) : base(color)
-        {
-            setImage(GraphicPath.Pieces.Rook(color));
-        }
+        public Rook(bool color, UIRook uIRook) : base(color, uIRook) { }
         public override object Clone()
         {
-            Rook r = new Rook(Color)
+            Rook r = new Rook(Color, null)
             {
                 Case = this.Case,
                 moveCount = this.moveCount,
@@ -149,13 +130,10 @@ namespace chess
 
     public class Queen : Piece
     {
-        public Queen(bool color) : base(color)
-        {
-            setImage(GraphicPath.Pieces.Queen(color));
-        }
+        public Queen(bool color, UIQueen uIQueen) : base(color, uIQueen) { }
         public override object Clone()
         {
-            Queen r = new Queen(Color)
+            Queen r = new Queen(Color, null)
             {
                 Case = this.Case,
                 realCase = this.Case,
@@ -168,13 +146,10 @@ namespace chess
 
     public class King : Piece
     {
-        public King(bool color) : base(color)
-        {
-            setImage(GraphicPath.Pieces.King(color));
-        }
+        public King(bool color, UIKing uIKing) : base(color, uIKing) { }
         public override object Clone()
         {
-            King r = new King(Color)
+            King r = new King(Color, null)
             {
                 Case = this.Case,
                 realCase = this.Case,
