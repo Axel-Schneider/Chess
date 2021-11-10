@@ -1,4 +1,5 @@
-﻿using System;
+﻿using chess.ChessBoardGUI;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Windows.Controls;
 
 namespace chess
 {
-    public delegate void PromotionCallback(Piece result, Piece source);
+    public delegate void PromotionCallback(UIPiece result, Piece source);
     public class Promotion : Grid
     {
         private TypeSwitch ts;
@@ -20,25 +21,25 @@ namespace chess
             Piece = piece;
             Callback = callback;
             ts = new TypeSwitch()
-                .Case((Bishop x) => IsBishop(x))
-                .Case((Knight x) => IsKnight(x))
-                .Case((Rook x) => IsRook(x))
-                .Case((Queen x) => IsQueen(x));
+                .Case((UIBishop x) => IsBishop(x))
+                .Case((UIKnight x) => IsKnight(x))
+                .Case((UIRook x) => IsRook(x))
+                .Case((UIQueen x) => IsQueen(x));
 
         }
         public void generateUI()
         {
             double imgWidth = Width / 4;
             double mTop = Height / 2 - imgWidth / 2;
-            Piece[] pieces = new Piece[] {
-                new Knight(Piece.Color),
-                new Bishop(Piece.Color),
-                new Rook(Piece.Color),
-                new Queen(Piece.Color),
+            UIPiece[] pieces = new UIPiece[] {
+                new UIKnight(Piece.Color),
+                new UIBishop(Piece.Color),
+                new UIRook(Piece.Color),
+                new UIQueen(Piece.Color),
             };
             int i = 0;
 
-            foreach (Piece pc in pieces)
+            foreach (UIPiece pc in pieces)
             {
                 pc.Width = imgWidth;
                 pc.Height = imgWidth;
@@ -54,24 +55,24 @@ namespace chess
                 i++;
             }
         }
-        private void IsQueen(Queen x)
+        private void IsQueen(UIQueen x)
         {
-            Callback(new Queen(Piece.Color), Piece);
+            Callback(new UIQueen(Piece.Color), Piece);
         }
 
-        private void IsRook(Rook x)
+        private void IsRook(UIRook x)
         {
-            Callback(new Rook(Piece.Color), Piece);
+            Callback(new UIRook(Piece.Color), Piece);
         }
 
-        private void IsKnight(Knight x)
+        private void IsKnight(UIKnight x)
         {
-            Callback(new Knight(Piece.Color), Piece);
+            Callback(new UIKnight(Piece.Color), Piece);
         }
 
-        private void IsBishop(Bishop x)
+        private void IsBishop(UIBishop x)
         {
-            Callback(new Bishop(Piece.Color), Piece);
+            Callback(new UIBishop(Piece.Color), Piece);
         }
     }
 }

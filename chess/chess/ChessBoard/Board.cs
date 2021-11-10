@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using chess.ChessBoardGUI;
 
 namespace chess
 {
@@ -15,17 +16,19 @@ namespace chess
         ACCORD,
         TIMER,
     }
-    public class Board : Grid
+    public class Board
     {
         #region Events
         public event EventHandler onTurnChanged;
         public event EventHandler onGameEnded;
-
+        public event EventHandler onShowMoves;
+        public event EventHandler onUnshowMoves;
+        public event EventHandler onPromotion;
+        public event EventHandler onPromotionCallback;
         #endregion
 
         #region Constantes
         public const int BOARD_SIZE = 8;
-        public const int BOARD_BORDER = 2;
         public const char
             CHAR_KING = 'k',
             CHAR_QUEEN = 'q',
@@ -38,9 +41,11 @@ namespace chess
         public const string DEFAULT_PATTERN = "rnbqkbnr/pppppppp";
         #endregion
 
+        private void EndGame(string message)
+        {
+            onGameEnded.Invoke(this, new EndGame(message));
+        }
         #region Propertys
-        public double CaseWith { get; private set; } = -1;
-        public double CaseHeight { get; private set; } = -1;
         public string Pattern { get; private set; }
         public bool Turn { get; private set; } = true;
 
@@ -52,7 +57,6 @@ namespace chess
 
         #region Object
         private TypeSwitch ts;
-        private List<Image> moves;
         #endregion
 
         #region Constructor
@@ -73,10 +77,6 @@ namespace chess
         #endregion
          
         #region Public Function
-        public void RegenerateBoard()
-        {
-            GenerateBoard();
-        }
 
         public void Nulle(NullReason reason)
         {
@@ -93,188 +93,6 @@ namespace chess
         #endregion
 
         #region Private Function
-
-        #region UI
-        private void CalculateUISize()
-        {
-            CaseWith = Width / BOARD_SIZE;
-            CaseHeight = Height / BOARD_SIZE;
-        }
-        private void GenerateBoard()
-        {
-            CalculateUISize();
-            if (CaseHeight > 0 && CaseWith > 0)
-            {
-                Cases = new List<Case>();
-                for (int i = 0; i < BOARD_SIZE; i++)
-                {
-                    for (int j = 0; j < BOARD_SIZE; j++)
-                    {
-                        int id = i * BOARD_SIZE + j;
-                        Case @case = new Case(id)
-                        {
-                            Width = CaseWith,
-                            Height = CaseHeight,
-                            VerticalAlignment = VerticalAlignment.Top,
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            Margin = new Thickness((CaseWith * j), (CaseHeight * i), 0, 0),
-                            Background = GetBrush(i + j),
-                            x = id % BOARD_SIZE,
-                            y = (id - (id % BOARD_SIZE)) / BOARD_SIZE,
-                        };
-                        Children.Add(@case);
-                        Cases.Add(@case);
-                    }
-                }
-            }
-            GeneratePieces();
-            Border brd = new Border()
-            {
-                BorderBrush = Brushes.Black,
-                BorderThickness = new Thickness(BOARD_BORDER, BOARD_BORDER, BOARD_BORDER, BOARD_BORDER),
-            };
-            Children.Add(brd);
-        }
-        private void GeneratePieces()
-        {
-            int i = 0;
-            int y = 0;
-            foreach (char c in Pattern.ToLower())
-            {
-                if (c == CHAR_LINE)
-                {
-                    y++;
-                    i = (BOARD_SIZE) * y;
-                    continue;
-                }
-                Piece black = null;
-                Piece white = null;
-                Case cblack = null;
-                Case cwhite = null;
-                int wx, wy;
-                int bx, by;
-                switch (c)
-                {
-                    case CHAR_ROOK:
-                        black = new Rook(false);
-                        white = new Rook(true);
-                        break;
-                    case CHAR_KNIGHT:
-                        black = new Knight(false);
-                        white = new Knight(true);
-                        break;
-                    case CHAR_BISHOP:
-                        black = new Bishop(false);
-                        white = new Bishop(true);
-                        break;
-                    case CHAR_QUEEN:
-                        black = new Queen(false);
-                        white = new Queen(true);
-                        break;
-                    case CHAR_KING:
-                        black = new King(false);
-                        white = new King(true);
-                        break;
-                    case CHAR_EMPTY:
-                        break;
-                    case CHAR_PAWN:
-                    default:
-                        black = new Pawn(false);
-                        white = new Pawn(true);
-                        break;
-                }
-                bx = i;
-                while (bx >= BOARD_SIZE)
-                {
-                    bx -= BOARD_SIZE;
-                }
-                wx = bx;
-                by = y;
-                wy = BOARD_SIZE - y - 1;
-                cwhite = Cases.Where(c => c.x == wx && c.y == wy).FirstOrDefault();
-                cblack = Cases.Where(c => c.x == bx && c.y == by).FirstOrDefault();
-                if (black != null && cblack != null) addPiece(black, cblack);
-                if (white != null && cwhite != null) addPiece(white, cwhite);
-                i++;
-            }
-
-
-        }
-        private void addPiece(Piece piece, Case @case)
-        {
-            Pieces.Add(piece);
-            @case.AddPiece(piece);
-            piece.MouseDown += Piece_MouseDown;
-        }
-        private Brush GetBrush(int id)
-        {
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(GraphicPath.Cases.GetCase(id % 2 == 0));
-            bitmap.EndInit();
-
-            return new ImageBrush(bitmap);
-        }
-        private Piece GetRandomPiece()
-        {
-            Random rdm = new Random();
-            Piece pc;
-            switch (rdm.Next(6))
-            {
-                case 0:
-                    pc = new Pawn(rdm.Next() % 2 == 0);
-                    break;
-                case 1:
-                    pc = new Bishop(rdm.Next() % 2 == 0);
-                    break;
-                case 2:
-                    pc = new Knight(rdm.Next() % 2 == 0);
-                    break;
-                case 3:
-                    pc = new Rook(rdm.Next() % 2 == 0);
-                    break;
-                case 4:
-                    pc = new Queen(rdm.Next() % 2 == 0);
-                    break;
-                case 5:
-                    pc = new King(rdm.Next() % 2 == 0);
-                    break;
-                default:
-                    pc = new Pawn(rdm.Next() % 2 == 0);
-                    break;
-            }
-            pc.MouseDown += Piece_MouseDown;
-            return pc;
-        }
-        private void EndGame(string message)
-        {
-            onGameEnded.Invoke(this, null);
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Background = new SolidColorBrush()
-                {
-                    Color = Color.FromRgb(0, 0, 0),
-                    Opacity = 0.2
-                };
-                Grid grid = new Grid()
-                {
-                    Background = Background
-                };
-                Children.Add(grid);
-                Label lbl = new Label()
-                {
-                    Content = message,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, 0, 0, 0),
-                    FontSize = 36
-                };
-                grid.Children.Add(lbl);
-
-            });
-        }
-
-        #endregion
 
         #region Moves calcul
         private List<Case> CalculKing(King sender)
@@ -451,124 +269,114 @@ namespace chess
 
         #region Moves show
 
+        public void addPiece(Piece piece, Case @case)
+        {
+            Pieces.Add(piece);
+            @case.AddPiece(piece);
+        }
+        public void initCases()
+        {
+            Cases = new List<Case>();
+        }
+        public void addCase(Case @case)
+        {
+            Cases.Add(@case);
+        }
+
         private void showMoves(Piece piece, List<Case> cases)
         {
             if (cases.Count <= 0) return;
-            if (moves != null)
-            {
-                foreach (Image i in moves)
-                {
-                    if (i.Parent != null)
-                        ((Grid)i.Parent).Children.Remove(i);
-                }
-            }
-            moves = new List<Image>();
-
+            List<Case> real = new List<Case>();
             foreach (Case c in cases)
             {
                 if (piece.IsAlive && CanMoveTo(piece, c))
                 {
-                    BitmapImage bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(GraphicPath.Show.move);
-                    bitmap.EndInit();
-
-                    Image img = new Image()
-                    {
-                        Source = bitmap,
-                        Opacity = 0.4
-                    };
-                    c.Children.Add(img);
-                    moves.Add(img);
-                    img.MouseDown += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
-                    {
-                        King king = (King)Pieces.Where(pc => pc is King && pc.Color == Turn).FirstOrDefault();
-                        List<Piece> enemy = Pieces.Where(pc => pc.Color != Turn).ToList();
-
-                        bool isCheck = KingIsInCheck(king, enemy);
-
-                        foreach (Image i in moves)
-                        {
-                            ((Grid)i.Parent).Children.Remove(i);
-                        }
-                        if (piece is Pawn && (c.y == 0 || c.y == BOARD_SIZE - 1))
-                        {
-                            Promotion prm = new Promotion(PawnPromotionCallback, piece)
-                            {
-                                Width = Width,
-                                Height = Height,
-                                Background = new SolidColorBrush()
-                                {
-                                    Color = Color.FromRgb(0, 0, 0),
-                                    Opacity = 0.5
-                                }
-
-                            };
-                            prm.generateUI();
-                            Children.Add(prm);
-                        }
-
-                        if (piece is King && (Math.Abs(piece.Case.x - c.x) == 2))
-                        {
-                            int inc = (piece.Case.Id - c.Id > 0) ? -1 : 1;
-                            Rook rk = null;
-                            for (int i = piece.Case.Id; i >= 0 && i <= BOARD_SIZE * BOARD_SIZE; i += inc)
-                            {
-                                Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
-                                if (obj != null && obj.Piece != null && obj.Piece is Rook)
-                                {
-                                    rk = (Rook)obj.Piece;
-                                    break;
-                                }
-                            }
-                            if (rk == null) return;
-                            else
-                            {
-                                rk.Case.RemovePiece();
-                                Case obj = Cases.Where(c => c.Id == piece.Case.Id + inc).FirstOrDefault();
-                                if (obj != null)
-                                {
-                                    obj.AddPiece(rk);
-                                }
-                            }
-                        }
-                        bool kill = false;
-                        if (c.Piece != null)
-                        {
-                            kill = true;
-                            Pieces.Remove(c.Piece);
-                            c.Piece.Delete();
-                        }
-                        LogMove(piece, piece.Case, c, isCheck, kill);
-                        piece.Case.RemovePiece();
-                        c.AddPiece(piece);
-                        ChangeTurn();
-                        if (IsCheckMate(Turn))
-                        {
-                            EndGame((!Turn)
-                                ? $"LIGHT WIN"
-                                : $"DARK WIN"
-                                );
-                        }
-                        else if (stroke50())
-                        {
-                            EndGame("50 stroke rule");
-                        }
-                        else if (!AsMove(Turn))
-                        {
-                            EndGame("Stalemate");
-                        }
-                        else if (isCheck && Perpetual(!Turn))
-                        {
-                            EndGame("Three times repetition");
-                        }else if (mater())
-                        {
-                            EndGame("Mater");
-                        }
-                    };
+                    real.Add(c);
                 }
             }
+            onShowMoves.Invoke(this, new ShowMoves(piece, real));
         }
+
+        public void played(Piece piece, Case c)
+        {
+            King king = (King)Pieces.Where(pc => pc is King && pc.Color == Turn).FirstOrDefault();
+            List<Piece> enemy = Pieces.Where(pc => pc.Color != Turn).ToList();
+
+            bool isCheck = KingIsInCheck(king, enemy);
+
+            if (piece is Pawn && (c.y == 0 || c.y == BOARD_SIZE - 1))
+            {
+                onPromotion.Invoke(this, new PromotionArgs(PawnPromotionCallback, piece));
+            }
+
+//=======================================================================================================
+//=======================================================================================================
+//=======================================================================================================
+//=======================================================================================================
+//=======================================================================================================
+//=======================================================================================================
+//=======================================================================================================
+
+            if (piece is King && (Math.Abs(piece.Case.x - c.x) == 2))
+            {
+                int inc = (piece.Case.Id - c.Id > 0) ? -1 : 1;
+                Rook rk = null;
+                for (int i = piece.Case.Id; i >= 0 && i <= BOARD_SIZE * BOARD_SIZE; i += inc)
+                {
+                    Case obj = Cases.Where(c => c.Id == i).FirstOrDefault();
+                    if (obj != null && obj.Piece != null && obj.Piece is Rook)
+                    {
+                        rk = (Rook)obj.Piece;
+                        break;
+                    }
+                }
+                if (rk == null) return;
+                else
+                {
+                    rk.Case.RemovePiece();
+                    Case obj = Cases.Where(c => c.Id == piece.Case.Id + inc).FirstOrDefault();
+                    if (obj != null)
+                    {
+                        obj.AddPiece(rk);
+                    }
+                }
+            }
+            bool kill = false;
+            if (c.Piece != null)
+            {
+                kill = true;
+                Pieces.Remove(c.Piece);
+                c.Piece.Delete();
+            }
+            LogMove(piece, piece.Case, c, isCheck, kill);
+            piece.Case.RemovePiece();
+            c.AddPiece(piece);
+            ChangeTurn();
+            if (IsCheckMate(Turn))
+            {
+                EndGame((!Turn)
+                    ? $"LIGHT WIN"
+                    : $"DARK WIN"
+                    );
+            }
+            else if (stroke50())
+            {
+                EndGame("50 stroke rule");
+            }
+            else if (!AsMove(Turn))
+            {
+                EndGame("Stalemate");
+            }
+            else if (isCheck && Perpetual(!Turn))
+            {
+                EndGame("Three times repetition");
+            }
+            else if (mater())
+            {
+                EndGame("Mater");
+            }
+        }
+
         private void ShowKing(King sender)
         {
             List<Case> res = CalculKing(sender);
@@ -603,7 +411,7 @@ namespace chess
         #endregion
 
         #region Simulation
-        private bool CanMoveTo(Piece piece, Case GoTo)
+        public bool CanMoveTo(Piece piece, Case GoTo)
         {
             List<Piece> smPieces = Clone.CloneList<Piece>(Pieces).Where(p => p != null && p.IsAlive).ToList();
             List<Piece> smenemy = smPieces.Where(p => p.Color != piece.Color).ToList();
@@ -692,12 +500,12 @@ namespace chess
             }
             return res;
         }
-        private void PawnPromotionCallback(Piece result, Piece source)
+        private void PawnPromotionCallback(UIPiece result, Piece source)
         {
-            result.MouseDown += Piece_MouseDown;
             Pieces.Remove(source);
-            Pieces.Add(result);
-            source.Case.AddPiece(result);
+            Pieces.Add(result.PieceChess);
+            source.Case.AddPiece(result.PieceChess);
+            onPromotionCallback.Invoke(this, new PromotionCallbackArgs(result));
         }
 
         private bool KingIsInCheck(King king, List<Piece> enemy)
@@ -824,19 +632,12 @@ namespace chess
         #endregion
 
         #region Events
-        private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        public void Click(UIPiece sender)
         {
-            if (((Piece)sender).Color == Turn)
+            if (((UIPiece)sender).PieceChess.Color == Turn)
             {
-                if (moves != null)
-                {
-                    foreach (Image i in moves)
-                    {
-                        if (i.Parent != null)
-                            ((Grid)i.Parent).Children.Remove(i);
-                    }
-                }
-                CalculPosition((Piece)sender);
+                onUnshowMoves.Invoke(this, null);
+                CalculPosition(((UIPiece)sender).PieceChess);
 
             }
         }
@@ -881,7 +682,6 @@ namespace chess
             return listToClone.Select(item => (T)item.Clone()).ToList();
         }
     }
-
     public class ChangeTurn : EventArgs
     {
         public bool Turn { get; private set; }
@@ -890,7 +690,44 @@ namespace chess
             Turn = turn;
         }
     }
+    public class EndGame : EventArgs
+    {
+        public string Message { get; private set; }
+        public EndGame(string message)
+        {
+            Message = message;
+        }
+    }
+    public class ShowMoves : EventArgs
+    {
+        public ShowMoves(Piece piece, List<Case> cases)
+        {
+            Piece = piece;
+            Cases = cases;
+        }
+        public Piece Piece { get; private set; }
+        public List<Case> Cases { get; private set; }
+    }
+    public class PromotionArgs : EventArgs
+    {
+        public PromotionArgs(PromotionCallback PawnPromotionCallback, Piece piece)
+        {
+            Piece = piece;
+            Callback = PawnPromotionCallback;
+        }
+        public Piece Piece { get; private set; }
+        public PromotionCallback Callback { get; private set; }
 
+    }
+    public class PromotionCallbackArgs : EventArgs
+    {
+        public PromotionCallbackArgs(UIPiece piece)
+        {
+            Piece = piece;
+        }
+        public UIPiece Piece { get; private set; }
+
+    }
     public enum MaterPieces
     {
         Knight,
