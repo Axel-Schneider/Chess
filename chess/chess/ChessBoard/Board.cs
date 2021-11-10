@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using chess.ChessBoardGUI;
 
 namespace chess
 {
@@ -111,7 +112,7 @@ namespace chess
                     for (int j = 0; j < BOARD_SIZE; j++)
                     {
                         int id = i * BOARD_SIZE + j;
-                        Case @case = new Case(id)
+                        UICase @case = new UICase(id)
                         {
                             Width = CaseWith,
                             Height = CaseHeight,
@@ -123,7 +124,7 @@ namespace chess
                             y = (id - (id % BOARD_SIZE)) / BOARD_SIZE,
                         };
                         Children.Add(@case);
-                        Cases.Add(@case);
+                        Cases.Add(@case.CaseChess);
                     }
                 }
             }
@@ -478,7 +479,7 @@ namespace chess
                         Source = bitmap,
                         Opacity = 0.4
                     };
-                    c.Children.Add(img);
+                    c.addChild(img);
                     moves.Add(img);
                     img.MouseDown += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
                     {

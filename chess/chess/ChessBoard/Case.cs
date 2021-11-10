@@ -4,11 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows;
 
 namespace chess
 {
-    public class Case : Grid, ICloneable
+    public class ChildArgs : EventArgs
     {
+        public UIElement Element;
+
+        public ChildArgs(UIElement element)
+        {
+            this.Element = element;
+        }
+    }
+    public class Case : ICloneable
+    {
+        public event EventHandler onPiecesChanged;
+        public event EventHandler onAddChild;
+
         public int Id { get; set; }
         public Piece? Piece { get; private set; }
         public Piece? realPiece { get; set; }
@@ -18,12 +31,16 @@ namespace chess
         {
             Id = id;
         }
+        public void addChild(UIElement element)
+        {
+            onAddChild.Invoke(this, new ChildArgs(element));
+        }
         public void AddPiece(Piece piece)
         {
             RemovePiece();
             Piece = piece;
             Piece.move(this);
-            Children.Add(Piece);
+            onPiecesChanged.Invoke(this, null);
         }
         public void SimulateNewPiece(Piece piece)
         {
@@ -39,8 +56,8 @@ namespace chess
 
         public void RemovePiece()
         {
-            Piece = null; 
-            Children.Clear();
+            Piece = null;
+            onPiecesChanged.Invoke(this, null);
         }
         public object Clone()
         {
