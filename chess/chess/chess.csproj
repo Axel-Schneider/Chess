@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DarkKing.png" />
     <None Remove="Icon.png" />
   </ItemGroup>
 
@@ -17,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="DarkKing.png" />
     <Resource Include="Icon.png" />
   </ItemGroup>
 

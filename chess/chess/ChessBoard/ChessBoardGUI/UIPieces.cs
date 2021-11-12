@@ -15,7 +15,7 @@ namespace chess.ChessBoardGUI
         public Piece PieceChess { get; protected set; }
         public UIPiece(bool color) : base()
         { }
-        private SvgViewbox Image;
+        public SvgViewbox Image { get; private set; }
         protected void setImage(string ImageUri)
         {
             Image = new SvgViewbox()

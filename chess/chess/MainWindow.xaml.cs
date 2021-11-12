@@ -1,4 +1,5 @@
 ﻿using chess.ChessBoardGUI;
+using SharpVectors.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,26 +23,16 @@ namespace chess
     /// </summary>
     public partial class MainWindow : Window
     {
-        UIBoard board;
+        private UIBoard board;
+        private UIUserPanel TimerDark;
+        private UIUserPanel TimerLight;
+
         public MainWindow()
         {
             InitializeComponent();
 
 
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(GraphicPath.Show.Background);
-            bitmap.EndInit();
-
-            bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(GraphicPath.Show.BackgroundObject);
-            bitmap.EndInit();
-
             board = new UIBoard()
-            //board = new Board("r   k  r/pppppppp")
-            //board = new Board("    k/r      r")
-            //board = new Board("rnbqk  r/ppp  ppp/b  p")
             {
                 Name = "Board",
                 Height = BoardGrid.Height - 20,
@@ -60,62 +51,63 @@ namespace chess
                 Opacity = 0.35
             };
 
-            TimerDark = new ChessTimer()
+            TimerDark = new UIUserPanel(new TimeSpan(0,0,10))
             {
-                Header = "Dark",
+                Name = "Dark",
+                Icon = GraphicPath.Pieces.King(false)
+
             };
-            TimerDark.onTimerEnded += Dark_onTimerEnded;
-            TimerLight = new ChessTimer()
+            TimerDark.onTimerEnded += onTimerEnded;
+
+            TimerLight = new UIUserPanel(new TimeSpan(0, 0, 10))
             {
-                Header = "Light",
-            }; 
-            TimerLight.onTimerEnded += Light_onTimerEnded;
+                Name = "Light",
+                Icon = GraphicPath.Pieces.King(true)
 
-            DarkGrid.Background = new ImageBrush(bitmap);
-            DarkGrid.Children.Add(TimerDark);
-            LightGrid.Background = new ImageBrush(bitmap);
+            };
+            TimerLight.onTimerEnded += onTimerEnded;
+            TimerLight.TimerStart();
             LightGrid.Children.Add(TimerLight);
+            DarkGrid.Children.Add(TimerDark);
 
-            TimerLight.Start();
         }
 
         private void Board_onGameEnded(object? sender, EventArgs e)
         {
-            TimerLight.Stop();
-            TimerDark.Stop();
+            TimerLight.TimerStop();
+            TimerDark.TimerStop();
         }
 
-        private void Light_onTimerEnded(object? sender, EventArgs e)
+        private void onTimerEnded(object? sender, EventArgs e)
         {
+            TimerLight.TimerStop();
+            TimerDark.TimerStop();
             board.Nulle(NullReason.TIMER);
         }
 
-        private void Dark_onTimerEnded(object? sender, EventArgs e)
-        {
-            board.Nulle(NullReason.TIMER);
-        }
-
-        ChessTimer TimerDark;
-        ChessTimer TimerLight;
         private void Board_onTurnChanged(object? sender, EventArgs e)
         {
             string move = "";
-            if (((ChangeTurn)e).Turn)
+            MoveLog cs = ((Board)sender).Turn
+                ? ((Board)sender).LastMovesDark.Last()
+                : ((Board)sender).LastMovesLight.Last();
+            move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
+            TimerLight.TimerInverse();
+            TimerDark.TimerInverse();
+            lblHistory.Content = move + " ; " + lblHistory.Content;
+
+            if (cs.Kill)
             {
-                TimerDark.Pause();
-                TimerLight.Start();
-                MoveLog cs = ((Board)sender).LastMovesDark.Last();
-                move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
-            }
-            else
-            {
-                TimerLight.Pause();
-                TimerDark.Start();
-                MoveLog cs = ((Board)sender).LastMovesLight.Last();
-                move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
+                if (((Board)sender).Turn)
+                {
+                    TimerDark.AddKill(cs.PieceKilled.UIPiece);
+                }
+                else
+                {
+                    TimerLight.AddKill(cs.PieceKilled.UIPiece);
+                }
             }
 
-            lblHistory.Content = move + " ; " + lblHistory.Content;
         }
     }
 }

@@ -12,12 +12,13 @@ namespace chess
 
         public int Id { get; private set; }
         public Piece Piece { get; private set; }
+        public Piece? PieceKilled { get; private set; }
         public Case From { get; private set; }
         public Case To { get; private set; }
         public bool WasCheck { get; private set; }
         public bool Kill { get; private set; }
 
-        public MoveLog(Piece piece, Case from, Case to, bool wasCheck = false, bool kill = false)
+        public MoveLog(Piece piece, Case from, Case to, bool wasCheck = false, bool kill = false, Piece? killed = null)
         {
             Id = count;
             Piece = piece;
@@ -25,6 +26,7 @@ namespace chess
             To = to;
             WasCheck = wasCheck;
             Kill = kill;
+            PieceKilled = killed;
             count++;
         }
     }

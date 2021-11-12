@@ -10,10 +10,11 @@
     <Grid x:Name="mainGrid">
         <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="936" Margin="34,70,0,0" VerticalAlignment="Top" Width="936" Background="#FFE8E8E8">
         </Grid>
-        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Height="449" Margin="1026,70,0,0" VerticalAlignment="Top" Width="475" Background="White">
+        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Margin="1026,70,0,0" VerticalAlignment="Top" Height="450" Width="475">
         </Grid>
-        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Height="449" Margin="1026,557,0,0" VerticalAlignment="Top" Width="475" Background="White">
+        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Margin="1026,557,0,0" VerticalAlignment="Top" Height="450" Width="475" Background="White">
         </Grid>
         <Label x:Name="lblHistory" Content="" HorizontalAlignment="Left" Margin="1650,63,0,0" VerticalAlignment="Top" Height="73" Width="260" Foreground="White"/>
+        
     </Grid>
 </Window>

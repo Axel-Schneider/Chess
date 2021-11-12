@@ -334,13 +334,15 @@ namespace chess
                 }
             }
             bool kill = false;
+            Piece killed = null;
             if (c.Piece != null)
             {
                 kill = true;
+                killed = c.Piece;
                 Pieces.Remove(c.Piece);
                 c.Piece.Delete();
             }
-            LogMove(piece, piece.Case, c, isCheck, kill);
+            LogMove(piece, piece.Case, c, isCheck, kill, killed);
             piece.Case.RemovePiece();
             c.AddPiece(piece);
             ChangeTurn();
@@ -642,9 +644,9 @@ namespace chess
         #endregion
 
         #region Log
-        private void LogMove(Piece piece, Case from, Case to, bool wasCheck, bool kill)
+        private void LogMove(Piece piece, Case from, Case to, bool wasCheck, bool kill, Piece killed)
         {
-            MoveLog mv = new(piece, from, to, wasCheck, kill);
+            MoveLog mv = new(piece, from, to, wasCheck, kill, killed);
 
             if (piece.Color)
             {
