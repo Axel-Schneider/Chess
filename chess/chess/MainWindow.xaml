@@ -5,18 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:chess"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
-        Title="Chess" Height="602" Width="855" Icon="/Icon.png">
-    <Window.FocusVisualStyle>
-        <Style/>
-    </Window.FocusVisualStyle>
+        WindowState="Maximized"
+        Title="Chess" Height="1080" Width="1920" Icon="/Icon.png">
     <Grid x:Name="mainGrid">
-        <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="520" Margin="10,10,0,0" VerticalAlignment="Top" Width="520" Background="#FFEAEAEA">
+        <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="936" Margin="34,70,0,0" VerticalAlignment="Top" Width="936" Background="#FFE8E8E8">
         </Grid>
-        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Height="253" Margin="535,10,0,0" VerticalAlignment="Top" Width="295">
+        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Height="449" Margin="1026,70,0,0" VerticalAlignment="Top" Width="475" Background="White">
         </Grid>
-        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Height="262" Margin="535,268,0,0" VerticalAlignment="Top" Width="295">
+        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Height="449" Margin="1026,557,0,0" VerticalAlignment="Top" Width="475" Background="White">
         </Grid>
-        <Label x:Name="lblHistory" Content="" HorizontalAlignment="Left" Margin="10,535,0,0" VerticalAlignment="Top" Height="41" Width="820" Foreground="White"/>
+        <Label x:Name="lblHistory" Content="" HorizontalAlignment="Left" Margin="1650,63,0,0" VerticalAlignment="Top" Height="73" Width="260" Foreground="White"/>
     </Grid>
 </Window>

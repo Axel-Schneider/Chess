@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Effects;
 
 namespace chess.ChessBoardGUI
 {
@@ -96,9 +97,12 @@ namespace chess.ChessBoardGUI
                 }
             }
             GeneratePieces();
+            GradientBrush linGrBrush = new LinearGradientBrush(Color.FromRgb(111,111,111), Color.FromRgb(220, 220, 220), 45);
+            Background = linGrBrush;
+
             Border brd = new Border()
             {
-                BorderBrush = Brushes.Black,
+                BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(BOARD_BORDER, BOARD_BORDER, BOARD_BORDER, BOARD_BORDER),
             };
             Children.Add(brd);
@@ -151,6 +155,20 @@ namespace chess.ChessBoardGUI
                         white = new UIPawn(true);
                         break;
                 }
+                white.Effect = new DropShadowEffect()
+                {
+                    BlurRadius = 5,
+                    Direction = -45,
+                    ShadowDepth = 5,
+                    Color = Color.FromRgb(150, 150, 150)
+                };
+                black.Effect = new DropShadowEffect()
+                {
+                    BlurRadius = 5,
+                    Direction = -45,
+                    ShadowDepth = 5,
+                    Color = Color.FromRgb(130, 130, 130)
+                };
                 bx = i;
                 while (bx >= Board.BOARD_SIZE)
                 {
@@ -175,12 +193,11 @@ namespace chess.ChessBoardGUI
         }
         private Brush GetBrush(int id)
         {
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(GraphicPath.Cases.GetCase(id % 2 == 0));
-            bitmap.EndInit();
-
-            return new ImageBrush(bitmap);
+            Brush brush = (id % 2 == 0)
+                ? new SolidColorBrush(Color.FromRgb(0, 0, 0))
+                : new SolidColorBrush(Color.FromRgb(255, 255, 255));
+            brush.Opacity = 0.5;
+            return brush;
         }
 
         #endregion
@@ -208,7 +225,7 @@ namespace chess.ChessBoardGUI
                     Image img = new Image()
                     {
                         Source = bitmap,
-                        Opacity = 0.4
+                        Opacity = 0.6
                     };
                     c.addChild(img);
                     moves.Add(img);

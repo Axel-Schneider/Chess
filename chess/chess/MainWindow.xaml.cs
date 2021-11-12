@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -26,19 +27,16 @@ namespace chess
         {
             InitializeComponent();
 
-            
 
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = new Uri(GraphicPath.Show.Background);
             bitmap.EndInit();
-            Background = new ImageBrush(bitmap);
 
             bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = new Uri(GraphicPath.Show.BackgroundObject);
             bitmap.EndInit();
-            BoardGrid.Background = new ImageBrush(bitmap);
 
             board = new UIBoard()
             //board = new Board("r   k  r/pppppppp")
@@ -53,6 +51,14 @@ namespace chess
             board.onGameEnded += Board_onGameEnded;
             BoardGrid.Children.Add(board);
             board.GenerateBoard();
+
+            BoardGrid.Effect = new DropShadowEffect()
+            {
+                BlurRadius = 5,
+                Direction = -45,
+                ShadowDepth = 5,
+                Opacity = 0.35
+            };
 
             TimerDark = new ChessTimer()
             {

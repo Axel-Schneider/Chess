@@ -1,26 +1,30 @@
-﻿using System;
+﻿using SharpVectors.Converters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace chess.ChessBoardGUI
 {
-    public abstract class UIPiece : Image
+    public abstract class UIPiece : Grid
     {
         public Piece PieceChess { get; protected set; }
         public UIPiece(bool color) : base()
         { }
+        private SvgViewbox Image;
         protected void setImage(string ImageUri)
         {
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(ImageUri);
-            bitmap.EndInit();
+            Image = new SvgViewbox()
+            {
+                Margin = new Thickness(10, 10, 10, 10),
+                Source = new Uri(ImageUri),
+            };
 
-            Source = bitmap;
+            Children.Add(Image);
         }
     }
     public class UIPawn : UIPiece

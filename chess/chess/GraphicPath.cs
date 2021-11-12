@@ -29,51 +29,51 @@ namespace chess
             /// <summary>
             /// Dark pawn path
             /// </summary>
-            public static string DarkPawnImg => PiecesPath + @"DarkPawn.png";
+            public static string DarkPawnImg => PiecesPath + @"DarkPawn.svg";
             /// <summary>
             /// Light pawn path
             /// </summary>
-            public static string LightPawnImg => PiecesPath + @"LightPawn.png";
+            public static string LightPawnImg => PiecesPath + @"LightPawn.svg";
             /// <summary>
             /// Dark Bishop path
             /// </summary>
-            public static string DarkBishopImg => PiecesPath + @"\DarkBishop.png";
+            public static string DarkBishopImg => PiecesPath + @"\DarkBishop.svg";
             /// <summary>
             /// Light Bishop path
             /// </summary>
-            public static string LightBishopImg => PiecesPath + @"LightBishop.png";
+            public static string LightBishopImg => PiecesPath + @"LightBishop.svg";
             /// <summary>
             /// Dark Knight path
             /// </summary>
-            public static string DarkKnightImg => PiecesPath + @"DarkKnight.png";
+            public static string DarkKnightImg => PiecesPath + @"DarkKnight.svg";
             /// <summary>
             /// Light Knight path
             /// </summary>
-            public static string LightKnightImg => PiecesPath + @"LightKnight.png";
+            public static string LightKnightImg => PiecesPath + @"LightKnight.svg";
             /// <summary>
             /// Dark Rook path
             /// </summary>
-            public static string DarkRookImg => PiecesPath + @"DarkRook.png";
+            public static string DarkRookImg => PiecesPath + @"DarkRook.svg";
             /// <summary>
             /// Light Rook path
             /// </summary>
-            public static string LightRookImg => PiecesPath + @"LightRook.png";
+            public static string LightRookImg => PiecesPath + @"LightRook.svg";
             /// <summary>
             /// Dark Queen path
             /// </summary>
-            public static string DarkQueenImg => PiecesPath + @"DarkQueen.png";
+            public static string DarkQueenImg => PiecesPath + @"DarkQueen.svg";
             /// <summary>
             /// Light Queen path
             /// </summary>
-            public static string LightQueenImg => PiecesPath + @"LightQueen.png";
+            public static string LightQueenImg => PiecesPath + @"LightQueen.svg";
             /// <summary>
             /// Dark King path
             /// </summary>
-            public static string DarkKingImg => PiecesPath + @"DarkKing.png";
+            public static string DarkKingImg => PiecesPath + @"DarkKing.svg";
             /// <summary>
             /// Light King path
             /// </summary>
-            public static string LightKingImg => PiecesPath + @"LightKing.png";
+            public static string LightKingImg => PiecesPath + @"LightKing.svg";
             /// <summary>
             /// Get King path
             /// </summary>
