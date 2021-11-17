@@ -26,6 +26,7 @@ namespace chess.ChessBoardGUI
 
         private List<Image> moves = new List<Image>();
 
+        private Piece selected;
         private Grid main = new Grid();
 
         public UIBoard(string pattern = Board.DEFAULT_PATTERN)
@@ -234,11 +235,17 @@ namespace chess.ChessBoardGUI
                 if (i.Parent != null)
                     ((Grid)i.Parent).Children.Remove(i);
             }
+            if (selected != null)
+            {
+                selected.UIPiece.Margin = new Thickness(0);
+            }
 
         }
         private void showMoves(Piece piece, List<Case> cases)
         {
             unshowMoves();
+            piece.UIPiece.Margin = new Thickness(-5);
+            selected = piece;
             foreach (Case c in cases)
             {
                 if (piece.IsAlive && BoardChess.CanMoveTo(piece, c))
