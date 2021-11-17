@@ -82,7 +82,7 @@ namespace chess
 
         private void TimerDark_onDraw(object? sender, EventArgs e)
         {
-            Draw($"{((UIUserPanel)sender).Name} want draw.\nDid you want to?");
+            Draw($"{((UIUserPanel)sender).Name} want draw.\nDid you want too?");
         }
 
         private void TimerLight_onDraw(object? sender, EventArgs e)
