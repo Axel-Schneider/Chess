@@ -143,6 +143,7 @@ namespace chess
             public static string move => ShowPath + @"move.png";
             public static string Background => ShowPath + @"Background.png";
             public static string BackgroundObject => ShowPath + @"BackgroundObject.jpg";
+            public static string History => ShowPath + @"History.svg";
         }
         public TwoPath Two => new TwoPath("", "");
 

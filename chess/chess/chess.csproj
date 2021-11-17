@@ -76,6 +76,9 @@
     <None Update="Images\Show\Background.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Images\Show\History.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Images\Show\move.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

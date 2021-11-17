@@ -125,6 +125,11 @@ namespace chess.ChessBoardGUI
                 Case cwhite = null;
                 int wx, wy;
                 int bx, by;
+                if (c == Board.CHAR_EMPTY)
+                {
+                    i++;
+                    continue;
+                }
                 switch (c)
                 {
                     case Board.CHAR_ROOK:
@@ -146,8 +151,6 @@ namespace chess.ChessBoardGUI
                     case Board.CHAR_KING:
                         black = new UIKing(false);
                         white = new UIKing(true);
-                        break;
-                    case Board.CHAR_EMPTY:
                         break;
                     case Board.CHAR_PAWN:
                     default:

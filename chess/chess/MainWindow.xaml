@@ -8,13 +8,14 @@
         WindowState="Maximized"
         Title="Chess" Height="1080" Width="1920" Icon="/Icon.png">
     <Grid x:Name="mainGrid">
-        <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="936" Margin="34,70,0,0" VerticalAlignment="Top" Width="936" Background="#FFE8E8E8">
+        <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="936" Margin="36,40,0,0" VerticalAlignment="Top" Width="936" Background="#FFE8E8E8">
         </Grid>
-        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Margin="1026,70,0,0" VerticalAlignment="Top" Height="450" Width="475">
+        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Margin="1000,40,0,0" VerticalAlignment="Top" Height="450" Width="475">
         </Grid>
-        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Margin="1026,557,0,0" VerticalAlignment="Top" Height="450" Width="475" Background="White">
+        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Margin="1000,524,0,0" VerticalAlignment="top" Height="450" Width="475">
         </Grid>
-        <Label x:Name="lblHistory" Content="" HorizontalAlignment="Left" Margin="1650,63,0,0" VerticalAlignment="Top" Height="73" Width="260" Foreground="White"/>
-        
+        <Grid x:Name="Historique" HorizontalAlignment="Left" Margin="1510,40,0,0" VerticalAlignment="top" Height="935" Width="390">
+        </Grid>
+
     </Grid>
 </Window>

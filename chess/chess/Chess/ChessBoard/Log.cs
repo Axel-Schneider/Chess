@@ -29,5 +29,10 @@ namespace chess
             PieceKilled = killed;
             count++;
         }
+
+        public override string ToString()
+        {
+            return $"{From.GetCaseName()} -> {To.GetCaseName()}";
+        }
     }
 }

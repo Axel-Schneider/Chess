@@ -26,7 +26,7 @@ namespace chess
         private UIBoard board;
         private UIUserPanel TimerDark;
         private UIUserPanel TimerLight;
-
+        private HistoryGrid history;
         public MainWindow()
         {
             InitializeComponent();
@@ -51,7 +51,7 @@ namespace chess
                 Opacity = 0.35
             };
 
-            TimerDark = new UIUserPanel(new TimeSpan(0,0,10))
+            TimerDark = new UIUserPanel(new TimeSpan(0,10,0))
             {
                 Name = "Dark",
                 Icon = GraphicPath.Pieces.King(false)
@@ -59,7 +59,7 @@ namespace chess
             };
             TimerDark.onTimerEnded += onTimerEnded;
 
-            TimerLight = new UIUserPanel(new TimeSpan(0, 0, 10))
+            TimerLight = new UIUserPanel(new TimeSpan(0, 10, 0))
             {
                 Name = "Light",
                 Icon = GraphicPath.Pieces.King(true)
@@ -70,6 +70,8 @@ namespace chess
             LightGrid.Children.Add(TimerLight);
             DarkGrid.Children.Add(TimerDark);
 
+            history = new HistoryGrid();
+            Historique.Children.Add(history);
         }
 
         private void Board_onGameEnded(object? sender, EventArgs e)
@@ -91,10 +93,9 @@ namespace chess
             MoveLog cs = ((Board)sender).Turn
                 ? ((Board)sender).LastMovesDark.Last()
                 : ((Board)sender).LastMovesLight.Last();
-            move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
+            move = cs.ToString();
             TimerLight.TimerInverse();
             TimerDark.TimerInverse();
-            lblHistory.Content = move + " ; " + lblHistory.Content;
 
             if (cs.Kill)
             {
@@ -107,6 +108,8 @@ namespace chess
                     TimerLight.AddKill(cs.PieceKilled.UIPiece);
                 }
             }
+
+            history.AddChildren(new HistoryItem(cs));
 
         }
     }
