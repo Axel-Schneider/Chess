@@ -40,7 +40,7 @@ namespace chess
             HistoryItem title = new HistoryItem(svg, "History")
             {
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                Margin = new System.Windows.Thickness(10, 10, 10, 0),
+                Margin = new System.Windows.Thickness(20, 20, 20, 0),
             };
             title.label.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
             title.label.FontSize = 20;

@@ -14,8 +14,8 @@ namespace chess
     //CornerRadius="10,10,10,10" Background="#FFFDFDFD">
 
     //<Border.Effect>
-    //    <DropShadowEffect BlurRadius = "7" Direction="-45" Opacity="0.35"/>
-    //</Border.Effect>
+    //    <dropshadoweffect blurradius = "7" direction="-45" opacity="0.35"/>
+    //</border.effect>
     class HistoryList : Border
     {
         private StackPanel StackPanel;

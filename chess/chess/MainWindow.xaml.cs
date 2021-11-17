@@ -43,13 +43,6 @@ namespace chess
             BoardGrid.Children.Add(board);
             board.GenerateBoard();
 
-            BoardGrid.Effect = new DropShadowEffect()
-            {
-                BlurRadius = 5,
-                Direction = -45,
-                ShadowDepth = 5,
-                Opacity = 0.35
-            };
 
             TimerDark = new UIUserPanel(new TimeSpan(0,10,0))
             {

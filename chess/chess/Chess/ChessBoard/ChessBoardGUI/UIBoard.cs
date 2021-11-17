@@ -12,7 +12,7 @@ using System.Windows.Media.Effects;
 
 namespace chess.ChessBoardGUI
 {
-    class UIBoard : Grid
+    class UIBoard : Border
     {
 
         public event EventHandler onTurnChanged;
@@ -26,6 +26,8 @@ namespace chess.ChessBoardGUI
 
         private List<Image> moves = new List<Image>();
 
+        private Grid main = new Grid();
+
         public UIBoard(string pattern = Board.DEFAULT_PATTERN)
         {
             BoardChess = new Board(pattern);
@@ -35,6 +37,10 @@ namespace chess.ChessBoardGUI
             BoardChess.onUnshowMoves += BoardChess_onUnshowMoves;
             BoardChess.onPromotion += BoardChess_onPromotion;
             BoardChess.onPromotionCallback += BoardChess_onPromotionCallback;
+
+            CornerRadius = new CornerRadius(10);
+            SnapsToDevicePixels = false;
+            Child = main;
         }
 
         public void Nulle(NullReason reason)
@@ -55,7 +61,7 @@ namespace chess.ChessBoardGUI
                 }
             };
             prm.generateUI();
-            Children.Add(prm);
+            main.Children.Add(prm);
         }
 
         private void BoardChess_onShowMoves(object? sender, EventArgs e)
@@ -91,7 +97,23 @@ namespace chess.ChessBoardGUI
                             x = id % Board.BOARD_SIZE,
                             y = (id - (id % Board.BOARD_SIZE)) / Board.BOARD_SIZE,
                         };
-                        Children.Add(@case);
+                        if (id == 0)
+                        {
+                            @case.CornerRadius = new CornerRadius(10, 0, 0, 0);
+                        }
+                        else if (id == Board.BOARD_SIZE - 1)
+                        {
+                            @case.CornerRadius = new CornerRadius(0, 10, 0, 0);
+                        }
+                        else if (id == Board.BOARD_SIZE * (Board.BOARD_SIZE - 1))
+                        {
+                            @case.CornerRadius = new CornerRadius(0, 0, 0, 10);
+                        }
+                        else if (id == Board.BOARD_SIZE * Board.BOARD_SIZE - 1)
+                        {
+                            @case.CornerRadius = new CornerRadius(0, 0, 10, 0);
+                        }
+                        main.Children.Add(@case);
                         BoardChess.addCase(@case.CaseChess);
                     }
                 }
@@ -104,8 +126,9 @@ namespace chess.ChessBoardGUI
             {
                 BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(BOARD_BORDER, BOARD_BORDER, BOARD_BORDER, BOARD_BORDER),
+                CornerRadius = new CornerRadius(10)
             };
-            Children.Add(brd);
+            main.Children.Add(brd);
         }
         private void GeneratePieces()
         {
@@ -266,7 +289,7 @@ namespace chess.ChessBoardGUI
                 {
                     Background = Background
                 };
-                Children.Add(grid);
+                main.Children.Add(grid);
                 Label lbl = new Label()
                 {
                     Content = ((EndGame)e).Message,

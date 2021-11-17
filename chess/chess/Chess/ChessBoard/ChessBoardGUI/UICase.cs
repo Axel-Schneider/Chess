@@ -7,8 +7,9 @@ using System.Windows.Controls;
 
 namespace chess.ChessBoardGUI
 {
-    class UICase : Grid
+    class UICase : Border
     {
+        private Grid main = new Grid();
         public int x
         {
             get { return CaseChess.x; }
@@ -25,19 +26,21 @@ namespace chess.ChessBoardGUI
             CaseChess = new Case(id);
             CaseChess.onPiecesChanged += CaseChess_onPiecesChanged;
             CaseChess.onAddChild += CaseChess_onAddChild;
+
+            Child = main;
         }
 
         private void CaseChess_onAddChild(object? sender, EventArgs e)
         {
-            Children.Add(((ChildArgs)e).Element);
+            main.Children.Add(((ChildArgs)e).Element);
         }
 
         private void CaseChess_onPiecesChanged(object? sender, EventArgs e)
         {
-            Children.Clear();
+            main.Children.Clear();
             if(CaseChess.Piece != null)
             {
-                Children.Add(CaseChess.Piece.UIPiece);
+                main.Children.Add(CaseChess.Piece.UIPiece);
             }
         }
     }
