@@ -303,9 +303,10 @@ namespace chess
             List<Piece> enemy = Pieces.Where(pc => pc.Color != Turn).ToList();
 
             bool isCheck = KingIsInCheck(king, enemy);
-
+            bool promotion = false;
             if (piece is Pawn && (c.y == 0 || c.y == BOARD_SIZE - 1))
             {
+                promotion = true;
                 onPromotion.Invoke(this, new PromotionArgs(PawnPromotionCallback, piece));
             }
 
@@ -345,7 +346,7 @@ namespace chess
             LogMove(piece, piece.Case, c, isCheck, kill, killed);
             piece.Case.RemovePiece();
             c.AddPiece(piece);
-            ChangeTurn();
+            if(!promotion) ChangeTurn();
             if (IsCheckMate(Turn))
             {
                 EndGame((!Turn)
@@ -500,6 +501,7 @@ namespace chess
             Pieces.Add(result.PieceChess);
             source.Case.AddPiece(result.PieceChess);
             onPromotionCallback.Invoke(this, new PromotionCallbackArgs(result));
+            ChangeTurn();
         }
 
         private bool KingIsInCheck(King king, List<Piece> enemy)
