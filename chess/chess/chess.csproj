@@ -8,14 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DarkKing.png" />
     <None Remove="Icon.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="SharpVectors" Version="1.7.6" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="DarkKing.png" />
     <Resource Include="Icon.png" />
   </ItemGroup>
 
@@ -34,40 +37,40 @@
     <None Update="Images\Cases\LightCase.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\DarkBishop.png">
+    <None Update="Images\Pieces\DarkBishop.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\DarkKing.png">
+    <None Update="Images\Pieces\DarkKing.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\DarkKnight.png">
+    <None Update="Images\Pieces\DarkKnight.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\DarkPawn.png">
+    <None Update="Images\Pieces\DarkPawn.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\DarkQueen.png">
+    <None Update="Images\Pieces\DarkQueen.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\DarkRook.png">
+    <None Update="Images\Pieces\DarkRook.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\LightBishop.png">
+    <None Update="Images\Pieces\LightBishop.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\LightKing.png">
+    <None Update="Images\Pieces\LightKing.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\LightKnight.png">
+    <None Update="Images\Pieces\LightKnight.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\LightPawn.png">
+    <None Update="Images\Pieces\LightPawn.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\LightQueen.png">
+    <None Update="Images\Pieces\LightQueen.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Images\Pieces\LightRook.png">
+    <None Update="Images\Pieces\LightRook.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Images\Show\BackgroundObject.jpg">
@@ -76,14 +79,17 @@
     <None Update="Images\Show\Background.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Images\Show\History.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\Show\move.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Old\Background-old.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Old\BackgroundObject.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="Images\Show\move.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

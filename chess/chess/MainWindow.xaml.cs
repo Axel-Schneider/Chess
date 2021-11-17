@@ -1,4 +1,5 @@
 ﻿using chess.ChessBoardGUI;
+using SharpVectors.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -21,29 +23,27 @@ namespace chess
     /// </summary>
     public partial class MainWindow : Window
     {
-        UIBoard board;
+        private UIBoard board;
+        private UIUserPanel TimerDark;
+        private UIUserPanel TimerLight;
+        private HistoryGrid history;
+
+        private Grid GridBackgroundPopUp = new Grid()
+        {
+            Margin = new Thickness(0),
+            Background = Brushes.Black,
+            Opacity = 0.7
+        };
+        public int BtnDraw_MouseEnter { get; private set; }
+        public int BtnDraw_MouseLeave { get; private set; }
+        public int BtnDraw_MouseUp { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
 
-            
-
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(GraphicPath.Show.Background);
-            bitmap.EndInit();
-            Background = new ImageBrush(bitmap);
-
-            bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(GraphicPath.Show.BackgroundObject);
-            bitmap.EndInit();
-            BoardGrid.Background = new ImageBrush(bitmap);
 
             board = new UIBoard()
-            //board = new Board("r   k  r/pppppppp")
-            //board = new Board("    k/r      r")
-            //board = new Board("rnbqk  r/ppp  ppp/b  p")
             {
                 Name = "Board",
                 Height = BoardGrid.Height - 20,
@@ -54,62 +54,119 @@ namespace chess
             BoardGrid.Children.Add(board);
             board.GenerateBoard();
 
-            TimerDark = new ChessTimer()
+
+            TimerDark = new UIUserPanel(new TimeSpan(0,10,0))
             {
-                Header = "Dark",
+                Name = "Dark",
+                Icon = GraphicPath.Pieces.King(false)
+
             };
-            TimerDark.onTimerEnded += Dark_onTimerEnded;
-            TimerLight = new ChessTimer()
+            TimerDark.onTimerEnded += onTimerEnded;
+            TimerDark.onDraw += TimerDark_onDraw;
+
+            TimerLight = new UIUserPanel(new TimeSpan(0, 10, 0))
             {
-                Header = "Light",
-            }; 
-            TimerLight.onTimerEnded += Light_onTimerEnded;
+                Name = "Light",
+                Icon = GraphicPath.Pieces.King(true)
 
-            DarkGrid.Background = new ImageBrush(bitmap);
-            DarkGrid.Children.Add(TimerDark);
-            LightGrid.Background = new ImageBrush(bitmap);
+            };
+            TimerLight.onTimerEnded += onTimerEnded;
+            TimerLight.onDraw += TimerLight_onDraw;
+            TimerLight.TimerStart();
             LightGrid.Children.Add(TimerLight);
+            DarkGrid.Children.Add(TimerDark);
 
-            TimerLight.Start();
+            history = new HistoryGrid();
+            Historique.Children.Add(history);
+        }
+
+        private void TimerDark_onDraw(object? sender, EventArgs e)
+        {
+            Draw($"{((UIUserPanel)sender).Name} want draw.\nDid you want too?");
+        }
+
+        private void TimerLight_onDraw(object? sender, EventArgs e)
+        {
+            Draw($"{((UIUserPanel)sender).Name} want draw.\nDid you want to?");
+        }
+
+        private void Draw(string Name)
+        {
+            mainGrid.Children.Add(GridBackgroundPopUp);
+            PopUp pop = new PopUp(Name);
+            pop.onClick += Pop_onClick;
+            mainGrid.Children.Add(pop);
+        }
+
+        private void Pop_onClick(object? sender, EventArgs e)
+        {
+            if (sender == null) return;
+            mainGrid.Children.Remove((UIElement)sender);
+            mainGrid.Children.Remove(GridBackgroundPopUp);
+            if (((PopUpArgs)e).Choose)
+            {
+                board.Nulle(NullReason.ACCORD);
+            }
         }
 
         private void Board_onGameEnded(object? sender, EventArgs e)
         {
-            TimerLight.Stop();
-            TimerDark.Stop();
+            TimerLight.TimerStop();
+            TimerDark.TimerStop();
+
+            mainGrid.Children.Add(GridBackgroundPopUp);
+            PopUp endGame = new PopUp($"Game ended for reason : {((EndGame)e).Message}", "Replay", "Close");
+            endGame.onClick += EndGame_onClick;
+            mainGrid.Children.Add(endGame);
+
         }
 
-        private void Light_onTimerEnded(object? sender, EventArgs e)
+        private void EndGame_onClick(object? sender, EventArgs e)
         {
-            board.Nulle(NullReason.TIMER);
-        }
-
-        private void Dark_onTimerEnded(object? sender, EventArgs e)
-        {
-            board.Nulle(NullReason.TIMER);
-        }
-
-        ChessTimer TimerDark;
-        ChessTimer TimerLight;
-        private void Board_onTurnChanged(object? sender, EventArgs e)
-        {
-            string move = "";
-            if (((ChangeTurn)e).Turn)
+            if (sender == null) return;
+            mainGrid.Children.Remove((UIElement)sender);
+            mainGrid.Children.Remove(GridBackgroundPopUp);
+            if (((PopUpArgs)e).Choose)
             {
-                TimerDark.Pause();
-                TimerLight.Start();
-                MoveLog cs = ((Board)sender).LastMovesDark.Last();
-                move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
+                MainWindow newGame = new MainWindow();
+                newGame.Show();
+                this.Close();
             }
             else
             {
-                TimerLight.Pause();
-                TimerDark.Start();
-                MoveLog cs = ((Board)sender).LastMovesLight.Last();
-                move = cs.From.GetCaseName() + "->" + cs.To.GetCaseName();
+                App.Current.MainWindow.Close();
+            }
+        }
+
+        private void onTimerEnded(object? sender, EventArgs e)
+        {
+            TimerLight.TimerStop();
+            TimerDark.TimerStop();
+            board.Nulle(NullReason.TIMER);
+        }
+
+        private void Board_onTurnChanged(object? sender, EventArgs e)
+        {
+            TimerLight.TimerInverse();
+            TimerDark.TimerInverse();
+            MoveLog cs = ((Board)sender).Turn
+                ? ((Board)sender).LastMovesDark.Last()
+                : ((Board)sender).LastMovesLight.Last();
+
+            if (cs.Kill)
+            {
+                if (((Board)sender).Turn)
+                {
+                    TimerDark.AddKill(cs.PieceKilled.UIPiece);
+                }
+                else
+                {
+                    TimerLight.AddKill(cs.PieceKilled.UIPiece);
+                }
             }
 
-            lblHistory.Content = move + " ; " + lblHistory.Content;
+            history.AddChildren(new HistoryItem(cs));
+
         }
     }
 }

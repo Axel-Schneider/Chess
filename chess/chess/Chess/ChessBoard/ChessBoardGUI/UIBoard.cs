@@ -8,10 +8,11 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Effects;
 
 namespace chess.ChessBoardGUI
 {
-    class UIBoard : Grid
+    class UIBoard : Border
     {
 
         public event EventHandler onTurnChanged;
@@ -25,6 +26,9 @@ namespace chess.ChessBoardGUI
 
         private List<Image> moves = new List<Image>();
 
+        private Piece selected;
+        private Grid main = new Grid();
+
         public UIBoard(string pattern = Board.DEFAULT_PATTERN)
         {
             BoardChess = new Board(pattern);
@@ -34,6 +38,10 @@ namespace chess.ChessBoardGUI
             BoardChess.onUnshowMoves += BoardChess_onUnshowMoves;
             BoardChess.onPromotion += BoardChess_onPromotion;
             BoardChess.onPromotionCallback += BoardChess_onPromotionCallback;
+
+            CornerRadius = new CornerRadius(10);
+            SnapsToDevicePixels = false;
+            Child = main;
         }
 
         public void Nulle(NullReason reason)
@@ -54,7 +62,7 @@ namespace chess.ChessBoardGUI
                 }
             };
             prm.generateUI();
-            Children.Add(prm);
+            main.Children.Add(prm);
         }
 
         private void BoardChess_onShowMoves(object? sender, EventArgs e)
@@ -90,18 +98,38 @@ namespace chess.ChessBoardGUI
                             x = id % Board.BOARD_SIZE,
                             y = (id - (id % Board.BOARD_SIZE)) / Board.BOARD_SIZE,
                         };
-                        Children.Add(@case);
+                        if (id == 0)
+                        {
+                            @case.CornerRadius = new CornerRadius(10, 0, 0, 0);
+                        }
+                        else if (id == Board.BOARD_SIZE - 1)
+                        {
+                            @case.CornerRadius = new CornerRadius(0, 10, 0, 0);
+                        }
+                        else if (id == Board.BOARD_SIZE * (Board.BOARD_SIZE - 1))
+                        {
+                            @case.CornerRadius = new CornerRadius(0, 0, 0, 10);
+                        }
+                        else if (id == Board.BOARD_SIZE * Board.BOARD_SIZE - 1)
+                        {
+                            @case.CornerRadius = new CornerRadius(0, 0, 10, 0);
+                        }
+                        main.Children.Add(@case);
                         BoardChess.addCase(@case.CaseChess);
                     }
                 }
             }
             GeneratePieces();
+            GradientBrush linGrBrush = new LinearGradientBrush(Color.FromRgb(111,111,111), Color.FromRgb(220, 220, 220), 45);
+            Background = linGrBrush;
+
             Border brd = new Border()
             {
-                BorderBrush = Brushes.Black,
+                BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(BOARD_BORDER, BOARD_BORDER, BOARD_BORDER, BOARD_BORDER),
+                CornerRadius = new CornerRadius(10)
             };
-            Children.Add(brd);
+            main.Children.Add(brd);
         }
         private void GeneratePieces()
         {
@@ -121,6 +149,11 @@ namespace chess.ChessBoardGUI
                 Case cwhite = null;
                 int wx, wy;
                 int bx, by;
+                if (c == Board.CHAR_EMPTY)
+                {
+                    i++;
+                    continue;
+                }
                 switch (c)
                 {
                     case Board.CHAR_ROOK:
@@ -143,14 +176,26 @@ namespace chess.ChessBoardGUI
                         black = new UIKing(false);
                         white = new UIKing(true);
                         break;
-                    case Board.CHAR_EMPTY:
-                        break;
                     case Board.CHAR_PAWN:
                     default:
                         black = new UIPawn(false);
                         white = new UIPawn(true);
                         break;
                 }
+                white.Effect = new DropShadowEffect()
+                {
+                    BlurRadius = 5,
+                    Direction = -45,
+                    ShadowDepth = 5,
+                    Color = Color.FromRgb(150, 150, 150)
+                };
+                black.Effect = new DropShadowEffect()
+                {
+                    BlurRadius = 5,
+                    Direction = -45,
+                    ShadowDepth = 5,
+                    Color = Color.FromRgb(130, 130, 130)
+                };
                 bx = i;
                 while (bx >= Board.BOARD_SIZE)
                 {
@@ -175,12 +220,11 @@ namespace chess.ChessBoardGUI
         }
         private Brush GetBrush(int id)
         {
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(GraphicPath.Cases.GetCase(id % 2 == 0));
-            bitmap.EndInit();
-
-            return new ImageBrush(bitmap);
+            Brush brush = (id % 2 == 0)
+                ? new SolidColorBrush(Color.FromRgb(0, 0, 0))
+                : new SolidColorBrush(Color.FromRgb(255, 255, 255));
+            brush.Opacity = 0.5;
+            return brush;
         }
 
         #endregion
@@ -191,11 +235,17 @@ namespace chess.ChessBoardGUI
                 if (i.Parent != null)
                     ((Grid)i.Parent).Children.Remove(i);
             }
+            if (selected != null)
+            {
+                selected.UIPiece.Margin = new Thickness(0);
+            }
 
         }
         private void showMoves(Piece piece, List<Case> cases)
         {
             unshowMoves();
+            piece.UIPiece.Margin = new Thickness(-5);
+            selected = piece;
             foreach (Case c in cases)
             {
                 if (piece.IsAlive && BoardChess.CanMoveTo(piece, c))
@@ -208,7 +258,7 @@ namespace chess.ChessBoardGUI
                     Image img = new Image()
                     {
                         Source = bitmap,
-                        Opacity = 0.4
+                        Opacity = 0.6
                     };
                     c.addChild(img);
                     moves.Add(img);
@@ -235,29 +285,7 @@ namespace chess.ChessBoardGUI
 
         private void BoardChess_onGameEnded(object? sender, EventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Background = new SolidColorBrush()
-                {
-                    Color = Color.FromRgb(0, 0, 0),
-                    Opacity = 0.2
-                };
-                Grid grid = new Grid()
-                {
-                    Background = Background
-                };
-                Children.Add(grid);
-                Label lbl = new Label()
-                {
-                    Content = ((EndGame)e).Message,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, 0, 0, 0),
-                    FontSize = 36
-                };
-                grid.Children.Add(lbl);
-
-            });
+            onGameEnded?.Invoke(this, e);
         }
 
         private void BoardChess_onUnshowMoves(object? sender, EventArgs e)

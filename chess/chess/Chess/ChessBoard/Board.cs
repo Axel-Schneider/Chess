@@ -303,9 +303,10 @@ namespace chess
             List<Piece> enemy = Pieces.Where(pc => pc.Color != Turn).ToList();
 
             bool isCheck = KingIsInCheck(king, enemy);
-
+            bool promotion = false;
             if (piece is Pawn && (c.y == 0 || c.y == BOARD_SIZE - 1))
             {
+                promotion = true;
                 onPromotion.Invoke(this, new PromotionArgs(PawnPromotionCallback, piece));
             }
 
@@ -334,16 +335,18 @@ namespace chess
                 }
             }
             bool kill = false;
+            Piece killed = null;
             if (c.Piece != null)
             {
                 kill = true;
+                killed = c.Piece;
                 Pieces.Remove(c.Piece);
                 c.Piece.Delete();
             }
-            LogMove(piece, piece.Case, c, isCheck, kill);
+            LogMove(piece, piece.Case, c, isCheck, kill, killed);
             piece.Case.RemovePiece();
             c.AddPiece(piece);
-            ChangeTurn();
+            if(!promotion) ChangeTurn();
             if (IsCheckMate(Turn))
             {
                 EndGame((!Turn)
@@ -440,7 +443,7 @@ namespace chess
             List<Case> res = new List<Case>();
             List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color && p.IsAlive).ToList();
             List<Piece> enemys = Pieces.Where(p => p.Color != sender.Color && p.IsAlive).ToList();
-
+            if (KingIsInCheck(sender, enemys)) return res;
             foreach (Piece rook in rooks)
             {
                 int inc = (sender.Case.Id > rook.Case.Id) ? -1 : 1;
@@ -498,6 +501,7 @@ namespace chess
             Pieces.Add(result.PieceChess);
             source.Case.AddPiece(result.PieceChess);
             onPromotionCallback.Invoke(this, new PromotionCallbackArgs(result));
+            ChangeTurn();
         }
 
         private bool KingIsInCheck(King king, List<Piece> enemy)
@@ -642,9 +646,9 @@ namespace chess
         #endregion
 
         #region Log
-        private void LogMove(Piece piece, Case from, Case to, bool wasCheck, bool kill)
+        private void LogMove(Piece piece, Case from, Case to, bool wasCheck, bool kill, Piece killed)
         {
-            MoveLog mv = new(piece, from, to, wasCheck, kill);
+            MoveLog mv = new(piece, from, to, wasCheck, kill, killed);
 
             if (piece.Color)
             {

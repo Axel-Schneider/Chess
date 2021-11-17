@@ -5,18 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:chess"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
-        Title="Chess" Height="602" Width="855" Icon="/Icon.png">
-    <Window.FocusVisualStyle>
-        <Style/>
-    </Window.FocusVisualStyle>
+        WindowState="Maximized"
+        Title="Chess" Height="1080" Width="1920" Icon="/Icon.png">
     <Grid x:Name="mainGrid">
-        <Grid x:Name="BoardGrid" HorizontalAlignment="Left" Height="520" Margin="10,10,0,0" VerticalAlignment="Top" Width="520" Background="#FFEAEAEA">
+        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Margin="1000,40,0,0" VerticalAlignment="Top" Height="450" Width="475">
         </Grid>
-        <Grid x:Name="DarkGrid" HorizontalAlignment="Left" Height="253" Margin="535,10,0,0" VerticalAlignment="Top" Width="295">
+        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Margin="1000,524,0,0" VerticalAlignment="top" Height="450" Width="475">
         </Grid>
-        <Grid x:Name="LightGrid" HorizontalAlignment="Left" Height="262" Margin="535,268,0,0" VerticalAlignment="Top" Width="295">
+        <Grid x:Name="Historique" HorizontalAlignment="Left" Margin="1510,40,0,0" VerticalAlignment="top" Height="935" Width="390">
         </Grid>
-        <Label x:Name="lblHistory" Content="" HorizontalAlignment="Left" Margin="10,535,0,0" VerticalAlignment="Top" Height="41" Width="820" Foreground="White"/>
+        <Border Margin="36,40,0,0" Width="936" HorizontalAlignment="Left" Height="936" VerticalAlignment="Top" CornerRadius="20,20,20,20" Background="#FFE8E8E8" UseLayoutRounding="False" >
+            <Border.Effect>
+                <DropShadowEffect BlurRadius = "5" Direction="-45" Opacity="0.35"/>
+            </Border.Effect>
+            <Grid x:Name="BoardGrid" Height="936" Width="936">
+            </Grid>
+        </Border>
     </Grid>
 </Window>
