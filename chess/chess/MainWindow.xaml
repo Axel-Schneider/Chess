@@ -19,7 +19,7 @@
                 <DropShadowEffect BlurRadius = "5" Direction="-45" Opacity="0.35"/>
             </Border.Effect>
             <Grid x:Name="BoardGrid" Height="936" Width="936">
-            </Grid>          
+            </Grid>
         </Border>
     </Grid>
 </Window>

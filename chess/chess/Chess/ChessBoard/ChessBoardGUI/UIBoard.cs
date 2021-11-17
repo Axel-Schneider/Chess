@@ -285,30 +285,6 @@ namespace chess.ChessBoardGUI
 
         private void BoardChess_onGameEnded(object? sender, EventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Background = new SolidColorBrush()
-                {
-                    Color = Color.FromRgb(0, 0, 0),
-                    Opacity = 0.2
-                };
-                Grid grid = new Grid()
-                {
-                    Background = Background
-                };
-                main.Children.Add(grid);
-                Label lbl = new Label()
-                {
-                    Content = ((EndGame)e).Message,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, 0, 0, 0),
-                    FontSize = 36
-                };
-                grid.Children.Add(lbl);
-
-            });
-
             onGameEnded?.Invoke(this, e);
         }
 

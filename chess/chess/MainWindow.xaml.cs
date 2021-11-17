@@ -27,6 +27,17 @@ namespace chess
         private UIUserPanel TimerDark;
         private UIUserPanel TimerLight;
         private HistoryGrid history;
+
+        private Grid GridBackgroundPopUp = new Grid()
+        {
+            Margin = new Thickness(0),
+            Background = Brushes.Black,
+            Opacity = 0.7
+        };
+        public int BtnDraw_MouseEnter { get; private set; }
+        public int BtnDraw_MouseLeave { get; private set; }
+        public int BtnDraw_MouseUp { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -51,6 +62,7 @@ namespace chess
 
             };
             TimerDark.onTimerEnded += onTimerEnded;
+            TimerDark.onDraw += TimerDark_onDraw;
 
             TimerLight = new UIUserPanel(new TimeSpan(0, 10, 0))
             {
@@ -59,6 +71,7 @@ namespace chess
 
             };
             TimerLight.onTimerEnded += onTimerEnded;
+            TimerLight.onDraw += TimerLight_onDraw;
             TimerLight.TimerStart();
             LightGrid.Children.Add(TimerLight);
             DarkGrid.Children.Add(TimerDark);
@@ -67,10 +80,62 @@ namespace chess
             Historique.Children.Add(history);
         }
 
+        private void TimerDark_onDraw(object? sender, EventArgs e)
+        {
+            Draw($"{((UIUserPanel)sender).Name} want draw.\nDid you want to?");
+        }
+
+        private void TimerLight_onDraw(object? sender, EventArgs e)
+        {
+            Draw($"{((UIUserPanel)sender).Name} want draw.\nDid you want to?");
+        }
+
+        private void Draw(string Name)
+        {
+            mainGrid.Children.Add(GridBackgroundPopUp);
+            PopUp pop = new PopUp(Name);
+            pop.onClick += Pop_onClick;
+            mainGrid.Children.Add(pop);
+        }
+
+        private void Pop_onClick(object? sender, EventArgs e)
+        {
+            if (sender == null) return;
+            mainGrid.Children.Remove((UIElement)sender);
+            mainGrid.Children.Remove(GridBackgroundPopUp);
+            if (((PopUpArgs)e).Choose)
+            {
+                board.Nulle(NullReason.ACCORD);
+            }
+        }
+
         private void Board_onGameEnded(object? sender, EventArgs e)
         {
             TimerLight.TimerStop();
             TimerDark.TimerStop();
+
+            mainGrid.Children.Add(GridBackgroundPopUp);
+            PopUp endGame = new PopUp($"Game ended for reason : {((EndGame)e).Message}", "Replay", "Close");
+            endGame.onClick += EndGame_onClick;
+            mainGrid.Children.Add(endGame);
+
+        }
+
+        private void EndGame_onClick(object? sender, EventArgs e)
+        {
+            if (sender == null) return;
+            mainGrid.Children.Remove((UIElement)sender);
+            mainGrid.Children.Remove(GridBackgroundPopUp);
+            if (((PopUpArgs)e).Choose)
+            {
+                MainWindow newGame = new MainWindow();
+                newGame.Show();
+                this.Close();
+            }
+            else
+            {
+                App.Current.MainWindow.Close();
+            }
         }
 
         private void onTimerEnded(object? sender, EventArgs e)

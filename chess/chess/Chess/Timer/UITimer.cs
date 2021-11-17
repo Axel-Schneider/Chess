@@ -282,7 +282,7 @@ namespace chess
 
         private void BtnDraw_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            onDraw?.Invoke(sender, e);
+            onDraw?.Invoke(this, e);
         }
 
         private void BtnDraw_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
