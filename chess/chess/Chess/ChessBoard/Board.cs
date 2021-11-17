@@ -442,7 +442,7 @@ namespace chess
             List<Case> res = new List<Case>();
             List<Piece> rooks = Pieces.Where(p => p is Rook && !p.AlreadyMoved && p.Color == sender.Color && p.IsAlive).ToList();
             List<Piece> enemys = Pieces.Where(p => p.Color != sender.Color && p.IsAlive).ToList();
-
+            if (KingIsInCheck(sender, enemys)) return res;
             foreach (Piece rook in rooks)
             {
                 int inc = (sender.Case.Id > rook.Case.Id) ? -1 : 1;
