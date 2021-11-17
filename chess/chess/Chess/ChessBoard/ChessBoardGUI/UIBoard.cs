@@ -308,6 +308,8 @@ namespace chess.ChessBoardGUI
                 grid.Children.Add(lbl);
 
             });
+
+            onGameEnded?.Invoke(this, e);
         }
 
         private void BoardChess_onUnshowMoves(object? sender, EventArgs e)

@@ -82,13 +82,11 @@ namespace chess
 
         private void Board_onTurnChanged(object? sender, EventArgs e)
         {
-            string move = "";
+            TimerLight.TimerInverse();
+            TimerDark.TimerInverse();
             MoveLog cs = ((Board)sender).Turn
                 ? ((Board)sender).LastMovesDark.Last()
                 : ((Board)sender).LastMovesLight.Last();
-            move = cs.ToString();
-            TimerLight.TimerInverse();
-            TimerDark.TimerInverse();
 
             if (cs.Kill)
             {
