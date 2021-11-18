@@ -38,8 +38,6 @@ namespace chess
         public int BtnDraw_MouseEnter { get; private set; }
         public int BtnDraw_MouseLeave { get; private set; }
         public int BtnDraw_MouseUp { get; private set; }
-        private bool AI = true;
-        private bool DoubleAI = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -80,14 +78,7 @@ namespace chess
             board.onGameEnded += Board_onGameEnded;
             BoardGrid.Children.Add(board);
 
-            if (AI)
-            {
-                ArtificalInteligence ai = new RandomBot(board.BoardChess, false);
-                if (DoubleAI)
-                {
-                    ArtificalInteligence ai2 = new RandomBot(board.BoardChess, true);
-                }
-            }
+            InitAI();
             board.GenerateBoard();
         }
 
