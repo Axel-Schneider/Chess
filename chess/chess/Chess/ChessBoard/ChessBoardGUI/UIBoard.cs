@@ -17,10 +17,13 @@ namespace chess.ChessBoardGUI
 
         public event EventHandler onTurnChanged;
         public event EventHandler onGameEnded;
+        public event EventHandler AIplay;
 
         public Board BoardChess { get; private set; }
         public double CaseWith { get; private set; } = -1;
         public double CaseHeight { get; private set; } = -1;
+        public bool AIColor { get; private set; } = false;
+        public bool AI { get; private set; }
 
         public const int BOARD_BORDER = 2;
 
@@ -29,7 +32,7 @@ namespace chess.ChessBoardGUI
         private Piece selected;
         private Grid main = new Grid();
 
-        public UIBoard(string pattern = Board.DEFAULT_PATTERN)
+        public UIBoard(string pattern = Board.DEFAULT_PATTERN, bool AI = false, bool AIColor = false)
         {
             BoardChess = new Board(pattern);
             BoardChess.onGameEnded += BoardChess_onGameEnded;
@@ -42,6 +45,12 @@ namespace chess.ChessBoardGUI
             CornerRadius = new CornerRadius(10);
             SnapsToDevicePixels = false;
             Child = main;
+
+            if (AI)
+            {
+                this.AI = AI;
+                this.AIColor = AIColor;
+            }
         }
 
         public void Nulle(NullReason reason)
@@ -276,11 +285,14 @@ namespace chess.ChessBoardGUI
 
         private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (AI && ((UIPiece)sender).PieceChess.Color == AIColor) return;
             BoardChess.Click((UIPiece)sender);
         }
         private void BoardChess_onTurnChanged(object? sender, EventArgs e)
         {
             onTurnChanged.Invoke(sender, e);
+            if(AI && ((ChangeTurn)e).Turn == AIColor)
+                AIplay?.Invoke(this, null);
         }
 
         private void BoardChess_onGameEnded(object? sender, EventArgs e)

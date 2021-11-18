@@ -261,6 +261,20 @@ namespace chess
             return cases;
         }
 
+        public List<Case> GetMoves(Piece sender)
+        {
+            List<Case> cases = CalculMoves(sender);
+            List<Case> res = new List<Case>();
+            foreach(Case @case in cases)
+            {
+                if(CanMoveTo(sender, @case))
+                {
+                    res.Add(@case);
+                }
+            }
+            return res;
+        }
+
         private void CalculPosition(Piece sender)
         {
             ts.Switch(sender);
@@ -297,8 +311,11 @@ namespace chess
             onShowMoves.Invoke(this, new ShowMoves(piece, real));
         }
 
-        public void played(Piece piece, Case c)
+        public bool played(Piece piece, Case c)
         {
+            if (piece.Color != Turn) return false;
+            if (!CanMoveTo(piece, c)) return false;
+
             King king = (King)Pieces.Where(pc => pc is King && pc.Color == Turn).FirstOrDefault();
             List<Piece> enemy = Pieces.Where(pc => pc.Color != Turn).ToList();
 
@@ -323,7 +340,7 @@ namespace chess
                         break;
                     }
                 }
-                if (rk == null) return;
+                if (rk == null) return false;
                 else
                 {
                     rk.Case.RemovePiece();
@@ -370,6 +387,7 @@ namespace chess
             {
                 EndGame("Mater");
             }
+            return true;
         }
 
         private void ShowKing(King sender)

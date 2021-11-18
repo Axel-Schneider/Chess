@@ -15,6 +15,7 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using chess.AI;
 
 namespace chess
 {
@@ -43,7 +44,7 @@ namespace chess
             InitializeComponent();
 
 
-            board = new UIBoard()
+            board = new UIBoard(AI:true, AIColor:false)
             {
                 Name = "Board",
                 Height = BoardGrid.Height - 20,
@@ -78,6 +79,9 @@ namespace chess
 
             history = new HistoryGrid();
             Historique.Children.Add(history);
+
+
+            ArtificalInteligence ai = new RandomBot(board.BoardChess, false);
         }
 
         private void TimerDark_onDraw(object? sender, EventArgs e)
@@ -147,26 +151,29 @@ namespace chess
 
         private void Board_onTurnChanged(object? sender, EventArgs e)
         {
-            TimerLight.TimerInverse();
-            TimerDark.TimerInverse();
-            MoveLog cs = ((Board)sender).Turn
-                ? ((Board)sender).LastMovesDark.Last()
-                : ((Board)sender).LastMovesLight.Last();
 
-            if (cs.Kill)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                if (((Board)sender).Turn)
-                {
-                    TimerDark.AddKill(cs.PieceKilled.UIPiece);
-                }
-                else
-                {
-                    TimerLight.AddKill(cs.PieceKilled.UIPiece);
-                }
-            }
+                TimerLight.TimerInverse();
+                TimerDark.TimerInverse();
+                MoveLog cs = ((Board)sender).Turn
+                    ? ((Board)sender).LastMovesDark.Last()
+                    : ((Board)sender).LastMovesLight.Last();
 
-            history.AddChildren(new HistoryItem(cs));
+                if (cs.Kill)
+                {
+                    if (((Board)sender).Turn)
+                    {
+                        TimerDark.AddKill(cs.PieceKilled.UIPiece);
+                    }
+                    else
+                    {
+                        TimerLight.AddKill(cs.PieceKilled.UIPiece);
+                    }
+                }
 
+                history.AddChildren(new HistoryItem(cs));
+            });
         }
     }
 }
