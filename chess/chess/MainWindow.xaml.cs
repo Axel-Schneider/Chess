@@ -15,6 +15,7 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using chess.AI;
 
 namespace chess
 {
@@ -37,22 +38,9 @@ namespace chess
         public int BtnDraw_MouseEnter { get; private set; }
         public int BtnDraw_MouseLeave { get; private set; }
         public int BtnDraw_MouseUp { get; private set; }
-
         public MainWindow()
         {
             InitializeComponent();
-
-
-            board = new UIBoard()
-            {
-                Name = "Board",
-                Height = BoardGrid.Height - 20,
-                Width = BoardGrid.Width - 20,
-            };
-            board.onTurnChanged += Board_onTurnChanged;
-            board.onGameEnded += Board_onGameEnded;
-            BoardGrid.Children.Add(board);
-            board.GenerateBoard();
 
 
             TimerDark = new UIUserPanel(new TimeSpan(0,10,0))
@@ -78,6 +66,20 @@ namespace chess
 
             history = new HistoryGrid();
             Historique.Children.Add(history);
+
+            board = new UIBoard(AI: AI, AIColor: false, doubleAI: DoubleAI)
+            // board = new UIBoard(AI:AI, AIColor:false)
+            {
+                Name = "Board",
+                Height = BoardGrid.Height - 20,
+                Width = BoardGrid.Width - 20,
+            };
+            board.onTurnChanged += Board_onTurnChanged;
+            board.onGameEnded += Board_onGameEnded;
+            BoardGrid.Children.Add(board);
+
+            InitAI();
+            board.GenerateBoard();
         }
 
         private void TimerDark_onDraw(object? sender, EventArgs e)
@@ -111,14 +113,36 @@ namespace chess
 
         private void Board_onGameEnded(object? sender, EventArgs e)
         {
-            TimerLight.TimerStop();
-            TimerDark.TimerStop();
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                TimerLight.TimerStop();
+                TimerDark.TimerStop();
+                if (GridBackgroundPopUp.Parent == null) mainGrid.Children.Add(GridBackgroundPopUp);
+                PopUp endGame = new PopUp($"Game ended for reason : {((EndGame)e).Message}", "Replay", "Close");
+                endGame.onClick += EndGame_onClick;
+                mainGrid.Children.Add(endGame);
+            });
+            if (DoubleAI)
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    
+                    bool b = true;
+                    sender.ToString();
+                    
+                    if (b)
+                    {
+                        MainWindow newGame = new MainWindow();
+                        newGame.Show();
+                    }
+                    b = false;
+                    if (b)
+                    {
+                        this.Close();
+                    }
+                });
 
-            mainGrid.Children.Add(GridBackgroundPopUp);
-            PopUp endGame = new PopUp($"Game ended for reason : {((EndGame)e).Message}", "Replay", "Close");
-            endGame.onClick += EndGame_onClick;
-            mainGrid.Children.Add(endGame);
-
+            }
         }
 
         private void EndGame_onClick(object? sender, EventArgs e)
@@ -147,26 +171,30 @@ namespace chess
 
         private void Board_onTurnChanged(object? sender, EventArgs e)
         {
-            TimerLight.TimerInverse();
-            TimerDark.TimerInverse();
-            MoveLog cs = ((Board)sender).Turn
-                ? ((Board)sender).LastMovesDark.Last()
-                : ((Board)sender).LastMovesLight.Last();
 
-            if (cs.Kill)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                if (((Board)sender).Turn)
+                TimerLight.TimerInverse();
+                TimerDark.TimerInverse();
+                MoveLog cs = ((Board)sender).Turn
+                    ? ((Board)sender).LastMovesDark.LastOrDefault()
+                    : ((Board)sender).LastMovesLight.LastOrDefault();
+                if (cs == null) return;
+                if (cs.Kill)
                 {
-                    TimerDark.AddKill(cs.PieceKilled.UIPiece);
+                    if (((Board)sender).Turn)
+                    {
+                        TimerDark.AddKill(cs.PieceKilled.UIPiece);
+                    }
+                    else
+                    {
+                        TimerLight.AddKill(cs.PieceKilled.UIPiece);
+                    }
                 }
-                else
-                {
-                    TimerLight.AddKill(cs.PieceKilled.UIPiece);
-                }
-            }
 
-            history.AddChildren(new HistoryItem(cs));
-
+                history.AddChildren(new HistoryItem(cs));
+                
+            });
         }
     }
 }

@@ -37,11 +37,14 @@ namespace chess.ChessBoardGUI
 
         private void CaseChess_onPiecesChanged(object? sender, EventArgs e)
         {
-            main.Children.Clear();
-            if(CaseChess.Piece != null)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                main.Children.Add(CaseChess.Piece.UIPiece);
-            }
+                main.Children.Clear();
+                if (CaseChess.Piece != null)
+                {
+                    main.Children.Add(CaseChess.Piece.UIPiece);
+                }
+            });
         }
     }
 }
