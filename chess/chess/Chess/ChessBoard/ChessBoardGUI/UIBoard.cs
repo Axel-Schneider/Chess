@@ -23,7 +23,9 @@ namespace chess.ChessBoardGUI
         public double CaseWith { get; private set; } = -1;
         public double CaseHeight { get; private set; } = -1;
         public bool AIColor { get; private set; } = false;
+        public bool DoubleAI { get; private set; } = false;
         public bool AI { get; private set; }
+        
 
         public const int BOARD_BORDER = 2;
 
@@ -32,7 +34,7 @@ namespace chess.ChessBoardGUI
         private Piece selected;
         private Grid main = new Grid();
 
-        public UIBoard(string pattern = Board.DEFAULT_PATTERN, bool AI = false, bool AIColor = false)
+        public UIBoard(string pattern = Board.DEFAULT_PATTERN, bool AI = false, bool AIColor = false, bool doubleAI = false)
         {
             BoardChess = new Board(pattern);
             BoardChess.onGameEnded += BoardChess_onGameEnded;
@@ -46,11 +48,12 @@ namespace chess.ChessBoardGUI
             SnapsToDevicePixels = false;
             Child = main;
 
-            if (AI)
+            if (AI || doubleAI)
             {
                 this.AI = AI;
                 this.AIColor = AIColor;
             }
+            if (doubleAI) DoubleAI = doubleAI;
         }
 
         public void Nulle(NullReason reason)
@@ -59,23 +62,30 @@ namespace chess.ChessBoardGUI
         }
         private void BoardChess_onPromotion(object? sender, EventArgs e)
         {
+            if (DoubleAI) return;
             PromotionArgs arg = (PromotionArgs)e;
-            Promotion prm = new Promotion(arg.Callback, arg.Piece)
+            if (AI && AIColor == arg.Turn) return;
+            App.Current.Dispatcher.Invoke(() =>
             {
-                Width = Width,
-                Height = Height,
-                Background = new SolidColorBrush()
+                Promotion prm = new Promotion(arg.Callback, arg.Piece)
                 {
-                    Color = Color.FromRgb(0, 0, 0),
-                    Opacity = 0.5
-                }
-            };
-            prm.generateUI();
-            main.Children.Add(prm);
+                    Width = Width,
+                    Height = Height,
+                    Background = new SolidColorBrush()
+                    {
+                        Color = Color.FromRgb(0, 0, 0),
+                        Opacity = 0.5
+                    }
+                };
+                prm.generateUI();
+                main.Children.Add(prm);
+
+            });
         }
 
         private void BoardChess_onShowMoves(object? sender, EventArgs e)
         {
+            if (DoubleAI) return;
             showMoves(((ShowMoves)e).Piece, ((ShowMoves)e).Cases);
         }
 
@@ -139,6 +149,9 @@ namespace chess.ChessBoardGUI
                 CornerRadius = new CornerRadius(10)
             };
             main.Children.Add(brd);
+            if (DoubleAI) {
+                BoardChess.ChangeTurn();
+            }
         }
         private void GeneratePieces()
         {
@@ -285,6 +298,7 @@ namespace chess.ChessBoardGUI
 
         private void Piece_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (DoubleAI) return;
             if (AI && ((UIPiece)sender).PieceChess.Color == AIColor) return;
             BoardChess.Click((UIPiece)sender);
         }

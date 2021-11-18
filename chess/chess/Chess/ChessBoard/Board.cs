@@ -43,11 +43,14 @@ namespace chess
 
         private void EndGame(string message)
         {
-            onGameEnded.Invoke(this, new EndGame(message));
+            if(!GameEnded)
+                onGameEnded.Invoke(this, new EndGame(message));
+            GameEnded = true;
         }
         #region Propertys
         public string Pattern { get; private set; }
         public bool Turn { get; private set; } = true;
+        public bool GameEnded { get; private set; } = false;
 
         public List<Case> Cases { get; private set; }
         public List<Piece> Pieces { get; private set; }
@@ -299,6 +302,7 @@ namespace chess
 
         private void showMoves(Piece piece, List<Case> cases)
         {
+            if (GameEnded) return;
             if (cases.Count <= 0) return;
             List<Case> real = new List<Case>();
             foreach (Case c in cases)
@@ -313,6 +317,7 @@ namespace chess
 
         public bool played(Piece piece, Case c)
         {
+            if (GameEnded) return false;
             if (piece.Color != Turn) return false;
             if (!CanMoveTo(piece, c)) return false;
 
@@ -375,7 +380,7 @@ namespace chess
             {
                 EndGame("50 stroke rule");
             }
-            else if (!AsMove(Turn))
+            else if (!AsMove(Turn) && !promotion)
             {
                 EndGame("Stalemate");
             }
@@ -648,7 +653,7 @@ namespace chess
         #region Events
         public void Click(UIPiece sender)
         {
-            if (((UIPiece)sender).PieceChess.Color == Turn)
+            if (((UIPiece)sender).PieceChess.Color == Turn && !GameEnded)
             {
                 onUnshowMoves.Invoke(this, null);
                 CalculPosition(((UIPiece)sender).PieceChess);
@@ -656,8 +661,9 @@ namespace chess
             }
         }
 
-        private void ChangeTurn()
+        public void ChangeTurn()
         {
+            if (GameEnded) return;
             Turn = !Turn;
             onTurnChanged.Invoke(this, new ChangeTurn(Turn));
         }
@@ -729,6 +735,7 @@ namespace chess
             Piece = piece;
             Callback = PawnPromotionCallback;
         }
+        public bool Turn { get { return Piece.Color; } }
         public Piece Piece { get; private set; }
         public PromotionCallback Callback { get; private set; }
 

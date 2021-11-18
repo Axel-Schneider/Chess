@@ -38,22 +38,11 @@ namespace chess
         public int BtnDraw_MouseEnter { get; private set; }
         public int BtnDraw_MouseLeave { get; private set; }
         public int BtnDraw_MouseUp { get; private set; }
-
+        private bool AI = true;
+        private bool DoubleAI = false;
         public MainWindow()
         {
             InitializeComponent();
-
-
-            board = new UIBoard(AI:true, AIColor:false)
-            {
-                Name = "Board",
-                Height = BoardGrid.Height - 20,
-                Width = BoardGrid.Width - 20,
-            };
-            board.onTurnChanged += Board_onTurnChanged;
-            board.onGameEnded += Board_onGameEnded;
-            BoardGrid.Children.Add(board);
-            board.GenerateBoard();
 
 
             TimerDark = new UIUserPanel(new TimeSpan(0,10,0))
@@ -80,8 +69,26 @@ namespace chess
             history = new HistoryGrid();
             Historique.Children.Add(history);
 
+            board = new UIBoard(AI: AI, AIColor: false, doubleAI: DoubleAI)
+            // board = new UIBoard(AI:AI, AIColor:false)
+            {
+                Name = "Board",
+                Height = BoardGrid.Height - 20,
+                Width = BoardGrid.Width - 20,
+            };
+            board.onTurnChanged += Board_onTurnChanged;
+            board.onGameEnded += Board_onGameEnded;
+            BoardGrid.Children.Add(board);
 
-            ArtificalInteligence ai = new RandomBot(board.BoardChess, false);
+            if (AI)
+            {
+                ArtificalInteligence ai = new RandomBot(board.BoardChess, false);
+                if (DoubleAI)
+                {
+                    ArtificalInteligence ai2 = new RandomBot(board.BoardChess, true);
+                }
+            }
+            board.GenerateBoard();
         }
 
         private void TimerDark_onDraw(object? sender, EventArgs e)
@@ -115,14 +122,36 @@ namespace chess
 
         private void Board_onGameEnded(object? sender, EventArgs e)
         {
-            TimerLight.TimerStop();
-            TimerDark.TimerStop();
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                TimerLight.TimerStop();
+                TimerDark.TimerStop();
+                if (GridBackgroundPopUp.Parent == null) mainGrid.Children.Add(GridBackgroundPopUp);
+                PopUp endGame = new PopUp($"Game ended for reason : {((EndGame)e).Message}", "Replay", "Close");
+                endGame.onClick += EndGame_onClick;
+                mainGrid.Children.Add(endGame);
+            });
+            if (DoubleAI)
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    
+                    bool b = true;
+                    sender.ToString();
+                    
+                    if (b)
+                    {
+                        MainWindow newGame = new MainWindow();
+                        newGame.Show();
+                    }
+                    b = false;
+                    if (b)
+                    {
+                        this.Close();
+                    }
+                });
 
-            mainGrid.Children.Add(GridBackgroundPopUp);
-            PopUp endGame = new PopUp($"Game ended for reason : {((EndGame)e).Message}", "Replay", "Close");
-            endGame.onClick += EndGame_onClick;
-            mainGrid.Children.Add(endGame);
-
+            }
         }
 
         private void EndGame_onClick(object? sender, EventArgs e)
@@ -157,9 +186,9 @@ namespace chess
                 TimerLight.TimerInverse();
                 TimerDark.TimerInverse();
                 MoveLog cs = ((Board)sender).Turn
-                    ? ((Board)sender).LastMovesDark.Last()
-                    : ((Board)sender).LastMovesLight.Last();
-
+                    ? ((Board)sender).LastMovesDark.LastOrDefault()
+                    : ((Board)sender).LastMovesLight.LastOrDefault();
+                if (cs == null) return;
                 if (cs.Kill)
                 {
                     if (((Board)sender).Turn)
@@ -173,6 +202,7 @@ namespace chess
                 }
 
                 history.AddChildren(new HistoryItem(cs));
+                
             });
         }
     }
